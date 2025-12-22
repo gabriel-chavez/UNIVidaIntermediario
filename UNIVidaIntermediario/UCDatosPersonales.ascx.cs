@@ -94,7 +94,7 @@ namespace UNIVidaIntermediario
             ddlEstadoCivil.Enabled = !modoLectura;
             ddlNacionalidad.Enabled = !modoLectura;
             ddlDeptoResidencia.Enabled = !modoLectura;
-            ddlDeptoContratacion.Enabled = !modoLectura;
+          //  ddlDeptoContratacion.Enabled = !modoLectura;
             txtCelular.Enabled = !modoLectura;
             txtEmail.Enabled = !modoLectura;
             txtDireccion.Enabled = !modoLectura;
@@ -119,7 +119,7 @@ namespace UNIVidaIntermediario
             rfvEstadoCivil.Enabled = habilitar;
             rfvNacionalidad.Enabled = habilitar;
             rfvDeptoResidencia.Enabled = habilitar;
-            rfvDeptoContratacion.Enabled = habilitar;
+          //  rfvDeptoContratacion.Enabled = habilitar;
             rfvCelular.Enabled = habilitar;
             rfvEmail.Enabled = habilitar;
             rfvDireccion.Enabled = habilitar;
@@ -138,7 +138,7 @@ namespace UNIVidaIntermediario
             rfvEstadoCivil.ValidationGroup = validationGroup;
             rfvNacionalidad.ValidationGroup = validationGroup;
             rfvDeptoResidencia.ValidationGroup = validationGroup;
-            rfvDeptoContratacion.ValidationGroup = validationGroup;
+          //  rfvDeptoContratacion.ValidationGroup = validationGroup;
             rfvCelular.ValidationGroup = validationGroup;
             rfvEmail.ValidationGroup = validationGroup;
             rfvDireccion.ValidationGroup = validationGroup;
@@ -150,15 +150,15 @@ namespace UNIVidaIntermediario
         // Métodos para cargar datos
         public void CargarDatosDocumento(string tipoDoc, string numeroDoc, string complemento, string deptoExpedicion)
         {
-            txtTipoDocumento.Text = ConvertirTipoDocumento(tipoDoc);
-            txtNumeroDocumento.Text = numeroDoc;
-            txtDeptoExpedicion.Text = ConvertirDepartamento(deptoExpedicion);
+            //txtTipoDocumento.Text = ConvertirTipoDocumento(tipoDoc);
+            //txtNumeroDocumento.Text = numeroDoc;
+            //txtDeptoExpedicion.Text = ConvertirDepartamento(deptoExpedicion);
 
-            if (!string.IsNullOrEmpty(complemento))
-            {
-                divComplementoContainer.Visible = true;
-                txtComplemento.Text = complemento;
-            }
+            //if (!string.IsNullOrEmpty(complemento))
+            //{
+            //    divComplementoContainer.Visible = true;
+            //    txtComplemento.Text = complemento;
+            //}
         }
 
         public void CargarDatosPersonales(Dictionary<string, object> datos)
@@ -196,8 +196,8 @@ namespace UNIVidaIntermediario
             if (datos.ContainsKey("DeptoResidencia"))
                 ddlDeptoResidencia.SelectedValue = datos["DeptoResidencia"].ToString();
 
-            if (datos.ContainsKey("DeptoContratacion"))
-                ddlDeptoContratacion.SelectedValue = datos["DeptoContratacion"].ToString();
+            //if (datos.ContainsKey("DeptoContratacion"))
+            //    ddlDeptoContratacion.SelectedValue = datos["DeptoContratacion"].ToString();
 
             if (datos.ContainsKey("Celular"))
                 txtCelular.Text = datos["Celular"].ToString();
@@ -214,10 +214,10 @@ namespace UNIVidaIntermediario
             return new Dictionary<string, object>
             {
                 {"TipoPersona", TipoPersona},
-                {"TipoDocumento", txtTipoDocumento.Text},
-                {"NumeroDocumento", txtNumeroDocumento.Text},
-                {"Complemento", txtComplemento.Text},
-                {"DeptoExpedicion", txtDeptoExpedicion.Text},
+             //   {"TipoDocumento", txtTipoDocumento.Text},
+               // {"NumeroDocumento", txtNumeroDocumento.Text},
+                //{"Complemento", txtComplemento.Text},
+                //{"DeptoExpedicion", txtDeptoExpedicion.Text},
                 {"ApellidoPaterno", txtApellidoPaterno.Text},
                 {"ApellidoMaterno", txtApellidoMaterno.Text},
                 {"ApellidoCasada", txtApellidoCasada.Text},
@@ -228,7 +228,7 @@ namespace UNIVidaIntermediario
                 {"EstadoCivil", ddlEstadoCivil.SelectedValue},
                 {"Nacionalidad", ddlNacionalidad.SelectedValue},
                 {"DeptoResidencia", ddlDeptoResidencia.SelectedValue},
-                {"DeptoContratacion", ddlDeptoContratacion.SelectedValue},
+             //   {"DeptoContratacion", ddlDeptoContratacion.SelectedValue},
                 {"Celular", txtCelular.Text},
                 {"Email", txtEmail.Text},
                 {"Direccion", txtDireccion.Text}
@@ -247,7 +247,7 @@ namespace UNIVidaIntermediario
             ddlEstadoCivil.SelectedIndex = 0;
             ddlNacionalidad.SelectedIndex = 0;
             ddlDeptoResidencia.SelectedIndex = 0;
-            ddlDeptoContratacion.SelectedIndex = 0;
+        //    ddlDeptoContratacion.SelectedIndex = 0;
             txtCelular.Text = "";
             txtEmail.Text = "";
             txtDireccion.Text = "";

@@ -69,49 +69,49 @@ namespace UNIVidaIntermediario
         protected global::System.Web.UI.WebControls.Literal ltlSubtitulo;
 
         /// <summary>
-        /// Control txtTipoDocumento.
+        /// Control Literal1.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTipoDocumento;
+        protected global::System.Web.UI.WebControls.Literal Literal1;
 
         /// <summary>
-        /// Control txtNumeroDocumento.
+        /// Control Literal2.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtNumeroDocumento;
+        protected global::System.Web.UI.WebControls.Literal Literal2;
 
         /// <summary>
-        /// Control divComplementoContainer.
+        /// Control spanComplemento.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divComplementoContainer;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl spanComplemento;
 
         /// <summary>
-        /// Control txtComplemento.
+        /// Control Literal3.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtComplemento;
+        protected global::System.Web.UI.WebControls.Literal Literal3;
 
         /// <summary>
-        /// Control txtDeptoExpedicion.
+        /// Control Literal4.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDeptoExpedicion;
+        protected global::System.Web.UI.WebControls.Literal Literal4;
 
         /// <summary>
         /// Control txtApellidoPaterno.
@@ -292,24 +292,6 @@ namespace UNIVidaIntermediario
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvDeptoResidencia;
-
-        /// <summary>
-        /// Control ddlDeptoContratacion.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlDeptoContratacion;
-
-        /// <summary>
-        /// Control rfvDeptoContratacion.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvDeptoContratacion;
 
         /// <summary>
         /// Control ddlSexo.

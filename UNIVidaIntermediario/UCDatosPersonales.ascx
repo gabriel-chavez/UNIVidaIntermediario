@@ -4,7 +4,7 @@
 <asp:HiddenField ID="hfModoLectura" runat="server" Value="false" />
 
 <div class="datos-personales-form" id="datosPersonalesContainer" runat="server">
-    
+
     <!-- Título dinámico -->
     <div class="text-center mb-4">
         <h5 class="mb-0">
@@ -17,62 +17,32 @@
             <asp:Literal ID="ltlSubtitulo" runat="server"></asp:Literal>
         </p>
     </div>
+    <hr />
+    <div class="mb-4">
+        <div class="d-flex align-items-center justify-content-center gap-4 text-center">
+            <div>
+                <div class="text-muted small">DOCUMENTO</div>
+                <div class="h5 mb-0 fw-bold">
+                    <span class="text-primary">
+                        <asp:Literal ID="Literal1" runat="server">CI</asp:Literal>
+                    </span>
+                    <span class="mx-1">-</span>
+                    <span>
+                        <asp:Literal ID="Literal2" runat="server">6732326</asp:Literal>
+                    </span>
+                    <span id="spanComplemento" runat="server" class="text-info">
+                        <asp:Literal ID="Literal3" runat="server">A1</asp:Literal>
+                    </span>
+                </div>
+            </div>
 
-    <!-- Datos del Documento en 2 columnas -->
-    <div class="row">
-        <!-- Columna izquierda -->
-        <div class="col-md-6">
-            <div class="mb-3" style="position: relative;">
-                <asp:TextBox ID="txtTipoDocumento" runat="server" 
-                    CssClass="form-control form-control-lg" 
-                    ReadOnly="true"
-                    placeholder="-" />
-                <label class="form-label" for="<%= txtTipoDocumento.ClientID %>" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
-                    Tipo de Documento
-                </label>
-            </div>
-        </div>
-        
-        <!-- Columna derecha -->
-        <div class="col-md-6">
-            <div class="mb-3" style="position: relative;">
-                <asp:TextBox ID="txtNumeroDocumento" runat="server" 
-                    CssClass="form-control form-control-lg text-uppercase" 
-                    ReadOnly="true"
-                    placeholder="-" />
-                <label class="form-label" for="<%= txtNumeroDocumento.ClientID %>" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
-                    Número de Documento
-                </label>
-            </div>
-        </div>
-    </div>
+            <div class="vr" style="height: 40px;"></div>
 
-    <!-- Segunda fila para complemento y departamento -->
-    <div class="row">
-        <!-- Complemento -->
-        <div class="col-md-6">
-            <div class="mb-3" style="position: relative;" id="divComplementoContainer" runat="server" visible="false">
-                <asp:TextBox ID="txtComplemento" runat="server" 
-                    CssClass="form-control form-control-lg text-uppercase" 
-                    ReadOnly="true"
-                    MaxLength="5"
-                    placeholder="-" />
-                <label class="form-label" for="<%= txtComplemento.ClientID %>" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
-                    Complemento
-                </label>
-            </div>
-        </div>
-        
-        <!-- Departamento -->
-        <div class="col-md-6">
-            <div class="mb-3" style="position: relative;">
-                <asp:TextBox ID="txtDeptoExpedicion" runat="server" 
-                    CssClass="form-control form-control-lg text-uppercase" 
-                    ReadOnly="true"
-                    placeholder="-" />
-                <label class="form-label" for="<%= txtDeptoExpedicion.ClientID %>" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
-                    Departamento de Documento
-                </label>
+            <div>
+                <div class="text-muted small">DEPARTAMENTO</div>
+                <div class="h5 mb-0 fw-bold text-success">
+                    <asp:Literal ID="Literal4" runat="server">La Paz</asp:Literal>
+                </div>
             </div>
         </div>
     </div>
@@ -80,13 +50,12 @@
     <!-- Separador visual -->
     <hr class="my-4" />
 
-    <!-- Fila 1: Apellidos -->
+    <!-- Fila 1: Apellido Paterno -->
     <div class="row">
-        <!-- Apellido Paterno -->
-        <div class="col-md-6">
-            <div data-mdb-input-init class="form-outline mb-3">
-                <asp:TextBox ID="txtApellidoPaterno" runat="server" 
-                    CssClass="form-control form-control-lg text-uppercase" 
+        <div class="col-md-6 mb-3">
+            <div data-mdb-input-init class="form-outline ">
+                <asp:TextBox ID="txtApellidoPaterno" runat="server"
+                    CssClass="form-control form-control-lg text-uppercase"
                     placeholder=" "
                     MaxLength="50"
                     ClientIDMode="Static" />
@@ -97,22 +66,20 @@
                 ErrorMessage="Apellido paterno requerido."
                 CssClass="small text-danger"
                 Display="Dynamic"
-                ValidationGroup="DatosPersonales" 
+                ValidationGroup="DatosPersonales"
                 Enabled="false" />
-            <ajaxToolkit:FilteredTextBoxExtender 
-                ID="ftbeApellidoPaterno" 
+            <ajaxToolkit:FilteredTextBoxExtender
+                ID="ftbeApellidoPaterno"
                 runat="server"
                 TargetControlID="txtApellidoPaterno"
                 FilterType="Custom, UppercaseLetters, LowercaseLetters"
                 ValidChars=" -'"
                 FilterMode="ValidChars" />
         </div>
-        
-        <!-- Apellido Materno -->
-        <div class="col-md-6">
-            <div data-mdb-input-init class="form-outline mb-3">
-                <asp:TextBox ID="txtApellidoMaterno" runat="server" 
-                    CssClass="form-control form-control-lg text-uppercase" 
+        <div class="col-md-6 mb-3">
+            <div data-mdb-input-init class="form-outline">
+                <asp:TextBox ID="txtApellidoMaterno" runat="server"
+                    CssClass="form-control form-control-lg text-uppercase"
                     placeholder=" "
                     MaxLength="50"
                     ClientIDMode="Static" />
@@ -123,10 +90,10 @@
                 ErrorMessage="Apellido materno requerido."
                 CssClass="small text-danger"
                 Display="Dynamic"
-                ValidationGroup="DatosPersonales" 
+                ValidationGroup="DatosPersonales"
                 Enabled="false" />
-            <ajaxToolkit:FilteredTextBoxExtender 
-                ID="ftbeApellidoMaterno" 
+            <ajaxToolkit:FilteredTextBoxExtender
+                ID="ftbeApellidoMaterno"
                 runat="server"
                 TargetControlID="txtApellidoMaterno"
                 FilterType="Custom, UppercaseLetters, LowercaseLetters"
@@ -135,32 +102,34 @@
         </div>
     </div>
 
-    <!-- Fila 2: Apellido Casada y Primer Nombre -->
+
+    <!-- Fila 3: Apellido Casada/Viuda -->
     <div class="row">
-        <!-- Apellido Casada/Viuda -->
-        <div class="col-md-6">
-            <div data-mdb-input-init class="form-outline mb-3">
-                <asp:TextBox ID="txtApellidoCasada" runat="server" 
-                    CssClass="form-control form-control-lg text-uppercase" 
+        <div class="col-md-6 mb-3">
+            <div data-mdb-input-init class="form-outline ">
+                <asp:TextBox ID="txtApellidoCasada" runat="server"
+                    CssClass="form-control form-control-lg text-uppercase"
                     placeholder=" "
                     MaxLength="50"
                     ClientIDMode="Static" />
-                <label class="form-label" for="<%= txtApellidoCasada.ClientID %>">Apellido Casada/Viuda</label>
+                <label class="form-label" for="<%= txtApellidoCasada.ClientID %>">Apellido Casada/Viuda (Opcional)</label>
             </div>
-            <ajaxToolkit:FilteredTextBoxExtender 
-                ID="ftbeApellidoCasada" 
+            <ajaxToolkit:FilteredTextBoxExtender
+                ID="ftbeApellidoCasada"
                 runat="server"
                 TargetControlID="txtApellidoCasada"
                 FilterType="Custom, UppercaseLetters, LowercaseLetters"
                 ValidChars=" -'"
                 FilterMode="ValidChars" />
         </div>
-        
-        <!-- Primer Nombre -->
-        <div class="col-md-6">
-            <div data-mdb-input-init class="form-outline mb-3">
-                <asp:TextBox ID="txtPrimerNombre" runat="server" 
-                    CssClass="form-control form-control-lg text-uppercase" 
+    </div>
+
+    <!-- Fila 4: Primer Nombre -->
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div data-mdb-input-init class="form-outline ">
+                <asp:TextBox ID="txtPrimerNombre" runat="server"
+                    CssClass="form-control form-control-lg text-uppercase"
                     placeholder=" "
                     MaxLength="50"
                     ClientIDMode="Static" />
@@ -171,44 +140,43 @@
                 ErrorMessage="Primer nombre requerido."
                 CssClass="small text-danger"
                 Display="Dynamic"
-                ValidationGroup="DatosPersonales" 
+                ValidationGroup="DatosPersonales"
                 Enabled="false" />
-            <ajaxToolkit:FilteredTextBoxExtender 
-                ID="ftbePrimerNombre" 
+            <ajaxToolkit:FilteredTextBoxExtender
+                ID="ftbePrimerNombre"
                 runat="server"
                 TargetControlID="txtPrimerNombre"
                 FilterType="Custom, UppercaseLetters, LowercaseLetters"
                 ValidChars=" -'"
                 FilterMode="ValidChars" />
         </div>
-    </div>
-
-    <!-- Fila 3: Segundo Nombre y Fecha Nacimiento -->
-    <div class="row">
-        <!-- Segundo Nombre -->
-        <div class="col-md-6">
-            <div data-mdb-input-init class="form-outline mb-3">
-                <asp:TextBox ID="txtSegundoNombre" runat="server" 
-                    CssClass="form-control form-control-lg text-uppercase" 
+        <div class="col-md-6 mb-3">
+            <div data-mdb-input-init class="form-outline ">
+                <asp:TextBox ID="txtSegundoNombre" runat="server"
+                    CssClass="form-control form-control-lg text-uppercase"
                     placeholder=" "
                     MaxLength="50"
                     ClientIDMode="Static" />
-                <label class="form-label" for="<%= txtSegundoNombre.ClientID %>">Segundo Nombre</label>
+                <label class="form-label" for="<%= txtSegundoNombre.ClientID %>">Segundo Nombre (Opcional)</label>
             </div>
-            <ajaxToolkit:FilteredTextBoxExtender 
-                ID="ftbeSegundoNombre" 
+            <ajaxToolkit:FilteredTextBoxExtender
+                ID="ftbeSegundoNombre"
                 runat="server"
                 TargetControlID="txtSegundoNombre"
                 FilterType="Custom, UppercaseLetters, LowercaseLetters"
                 ValidChars=" -'"
                 FilterMode="ValidChars" />
         </div>
-        
-        <!-- Fecha de Nacimiento -->
-        <div class="col-md-6">
-            <div data-mdb-input-init class="form-outline mb-3">
-                <asp:TextBox ID="txtFechaNacimiento" runat="server" 
-                    CssClass="form-control form-control-lg" 
+    </div>
+
+
+
+    <!-- Fila 6: Fecha de Nacimiento -->
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div data-mdb-input-init class="form-outline ">
+                <asp:TextBox ID="txtFechaNacimiento" runat="server"
+                    CssClass="form-control form-control-lg"
                     placeholder=" "
                     MaxLength="10"
                     ClientIDMode="Static" />
@@ -216,10 +184,10 @@
             </div>
             <asp:RequiredFieldValidator ID="rfvFechaNacimiento" runat="server"
                 ControlToValidate="txtFechaNacimiento"
-                ErrorMessage="Fecha de nacimiento requerida."
+                ErrorMessage="Fecha de nacimiento requerido."
                 CssClass="small text-danger"
                 Display="Dynamic"
-                ValidationGroup="DatosPersonales" 
+                ValidationGroup="DatosPersonales"
                 Enabled="false" />
             <asp:RegularExpressionValidator ID="revFechaNacimiento" runat="server"
                 ControlToValidate="txtFechaNacimiento"
@@ -227,28 +195,24 @@
                 ErrorMessage="Formato DD/MM/AAAA."
                 CssClass="small text-danger"
                 Display="Dynamic"
-                ValidationGroup="DatosPersonales" 
+                ValidationGroup="DatosPersonales"
                 Enabled="false" />
-            <ajaxToolkit:CalendarExtender 
-                ID="ceFechaNacimiento" 
+            <ajaxToolkit:CalendarExtender
+                ID="ceFechaNacimiento"
                 runat="server"
                 TargetControlID="txtFechaNacimiento"
                 Format="dd/MM/yyyy" />
-            <ajaxToolkit:FilteredTextBoxExtender 
-                ID="ftbeFechaNacimiento" 
+            <ajaxToolkit:FilteredTextBoxExtender
+                ID="ftbeFechaNacimiento"
                 runat="server"
                 TargetControlID="txtFechaNacimiento"
                 FilterType="Custom, Numbers"
                 ValidChars="/" />
         </div>
-    </div>
-
-    <!-- Fila 4: Departamento Residencia y Contratación -->
-    <div class="row">
         <!-- Departamento de Residencia -->
         <div class="col-md-6">
             <div class="mb-3" style="position: relative;">
-                <asp:DropDownList ID="ddlDeptoResidencia" runat="server" 
+                <asp:DropDownList ID="ddlDeptoResidencia" runat="server"
                     CssClass="form-control form-control-lg"
                     ClientIDMode="Static">
                     <asp:ListItem Value="" Text="Seleccione departamento"></asp:ListItem>
@@ -271,15 +235,21 @@
                     ErrorMessage="Departamento de residencia requerido."
                     CssClass="small text-danger"
                     Display="Dynamic"
-                    ValidationGroup="DatosPersonales" 
+                    ValidationGroup="DatosPersonales"
                     Enabled="false" />
             </div>
         </div>
-        
+    </div>
+
+    <!-- Resto de campos organizados en 2 columnas -->
+    <!-- Fila 7: Departamento Residencia y Contratación -->
+    <%--<div class="row" style="display: none">
+
+
         <!-- Departamento de Contratación -->
         <div class="col-md-6">
             <div class="mb-3" style="position: relative;">
-                <asp:DropDownList ID="ddlDeptoContratacion" runat="server" 
+                <asp:DropDownList ID="ddlDeptoContratacion" runat="server"
                     CssClass="form-control form-control-lg"
                     ClientIDMode="Static">
                     <asp:ListItem Value="" Text="Seleccione departamento"></asp:ListItem>
@@ -302,18 +272,18 @@
                     ErrorMessage="Departamento de contratación requerido."
                     CssClass="small text-danger"
                     Display="Dynamic"
-                    ValidationGroup="DatosPersonales" 
+                    ValidationGroup="DatosPersonales"
                     Enabled="false" />
             </div>
         </div>
-    </div>
+    </div>--%>
 
-    <!-- Fila 5: Sexo y Estado Civil -->
+    <!-- Fila 8: Sexo y Estado Civil -->
     <div class="row">
         <!-- Sexo -->
-        <div class="col-md-6">
-            <div class="mb-3" style="position: relative;">
-                <asp:DropDownList ID="ddlSexo" runat="server" 
+        <div class="col-md-6 mb-3">
+            <div class="" style="position: relative;">
+                <asp:DropDownList ID="ddlSexo" runat="server"
                     CssClass="form-control form-control-lg"
                     ClientIDMode="Static">
                     <asp:ListItem Value="" Text="Seleccione sexo"></asp:ListItem>
@@ -330,15 +300,15 @@
                     ErrorMessage="Sexo requerido."
                     CssClass="small text-danger"
                     Display="Dynamic"
-                    ValidationGroup="DatosPersonales" 
+                    ValidationGroup="DatosPersonales"
                     Enabled="false" />
             </div>
         </div>
-        
+
         <!-- Estado Civil -->
-        <div class="col-md-6">
-            <div class="mb-3" style="position: relative;">
-                <asp:DropDownList ID="ddlEstadoCivil" runat="server" 
+        <div class="col-md-6 mb-3">
+            <div class="" style="position: relative;">
+                <asp:DropDownList ID="ddlEstadoCivil" runat="server"
                     CssClass="form-control form-control-lg"
                     ClientIDMode="Static">
                     <asp:ListItem Value="" Text="Seleccione estado civil"></asp:ListItem>
@@ -357,18 +327,18 @@
                     ErrorMessage="Estado civil requerido."
                     CssClass="small text-danger"
                     Display="Dynamic"
-                    ValidationGroup="DatosPersonales" 
+                    ValidationGroup="DatosPersonales"
                     Enabled="false" />
             </div>
         </div>
     </div>
 
-    <!-- Fila 6: Nacionalidad y Celular -->
+    <!-- Fila 9: Nacionalidad y Celular -->
     <div class="row">
         <!-- Nacionalidad -->
-        <div class="col-md-6">
-            <div class="mb-3" style="position: relative;">
-                <asp:DropDownList ID="ddlNacionalidad" runat="server" 
+        <div class="col-md-6 mb-3">
+            <div class="" style="position: relative;">
+                <asp:DropDownList ID="ddlNacionalidad" runat="server"
                     CssClass="form-control form-control-lg"
                     ClientIDMode="Static">
                     <asp:ListItem Value="" Text="Seleccione nacionalidad"></asp:ListItem>
@@ -384,21 +354,21 @@
                     ErrorMessage="Nacionalidad requerida."
                     CssClass="small text-danger"
                     Display="Dynamic"
-                    ValidationGroup="DatosPersonales" 
+                    ValidationGroup="DatosPersonales"
                     Enabled="false" />
             </div>
         </div>
-        
+
         <!-- Número de Celular -->
-        <div class="col-md-6">
-            <div data-mdb-input-init class="form-outline mb-3">
+        <div class="col-md-6 mb-3">
+            <div data-mdb-input-init class="form-outline ">
                 <asp:TextBox ID="txtCelular"
                     runat="server"
                     CssClass="form-control form-control-lg"
                     ClientIDMode="Static"
                     type="tel"
                     MaxLength="8"
-                    oninput="limitLength(this)" 
+                    oninput="limitLength(this)"
                     placeholder=" " />
                 <label class="form-label" for="<%= txtCelular.ClientID %>">Número de Celular <span class="text-danger">*</span></label>
             </div>
@@ -413,27 +383,25 @@
                 ErrorMessage="Número de celular requerido."
                 CssClass="small text-danger"
                 Display="Dynamic"
-                ValidationGroup="DatosPersonales" 
+                ValidationGroup="DatosPersonales"
                 Enabled="false" />
-            <!-- MANTENIENDO revCelular COMO EN TU FORMULARIO ORIGINAL -->
             <asp:RegularExpressionValidator ID="revCelular" runat="server"
                 ControlToValidate="txtCelular"
                 ValidationExpression="^[67][0-9]{7}$"
                 ErrorMessage="El número de celular debe comenzar con un 6 o un 7 y tener 8 dígitos."
                 CssClass="small text-danger"
                 Display="Dynamic"
-                ValidationGroup="DatosPersonales" 
+                ValidationGroup="DatosPersonales"
                 Enabled="false" />
         </div>
     </div>
 
-    <!-- Fila 7: Email y Dirección (Dirección ocupa toda la fila) -->
+    <!-- Fila 10: Email -->
     <div class="row">
-        <!-- Email -->
-        <div class="col-md-6">
-            <div data-mdb-input-init class="form-outline mb-3">
-                <asp:TextBox ID="txtEmail" runat="server" 
-                    CssClass="form-control form-control-lg" 
+        <div class="col-md-6  mb-3">
+            <div data-mdb-input-init class="form-outline">
+                <asp:TextBox ID="txtEmail" runat="server"
+                    CssClass="form-control form-control-lg"
                     TextMode="Email"
                     MaxLength="100"
                     ClientIDMode="Static"
@@ -446,7 +414,7 @@
                 ErrorMessage="Correo electrónico requerido."
                 CssClass="small text-danger"
                 Display="Dynamic"
-                ValidationGroup="DatosPersonales" 
+                ValidationGroup="DatosPersonales"
                 Enabled="false" />
             <ajaxToolkit:FilteredTextBoxExtender
                 ID="ftbeEmail"
@@ -463,22 +431,14 @@
                 ErrorMessage="Formato de correo electrónico inválido."
                 CssClass="small text-danger"
                 Display="Dynamic"
-                ValidationGroup="DatosPersonales" 
+                ValidationGroup="DatosPersonales"
                 Enabled="false" />
         </div>
-        
-        <!-- Espacio vacío para mantener el grid -->
-        <div class="col-md-6">
-            <!-- Espacio reservado -->
-        </div>
-    </div>
 
-    <!-- Fila 8: Dirección Domicilio (toda la fila) -->
-    <div class="row">
-        <div class="col-12">
-            <div data-mdb-input-init class="form-outline mb-4">
-                <asp:TextBox ID="txtDireccion" runat="server" 
-                    CssClass="form-control form-control-lg text-uppercase" 
+        <div class="col-md-6 mb-4">
+            <div data-mdb-input-init class="form-outline ">
+                <asp:TextBox ID="txtDireccion" runat="server"
+                    CssClass="form-control form-control-lg text-uppercase"
                     placeholder=" "
                     MaxLength="200"
                     ClientIDMode="Static" />
@@ -486,10 +446,10 @@
             </div>
             <asp:RequiredFieldValidator ID="rfvDireccion" runat="server"
                 ControlToValidate="txtDireccion"
-                ErrorMessage="Dirección domicilio requerida."
+                ErrorMessage="Dirección domicilio requerido."
                 CssClass="small text-danger"
                 Display="Dynamic"
-                ValidationGroup="DatosPersonales" 
+                ValidationGroup="DatosPersonales"
                 Enabled="false" />
             <ajaxToolkit:FilteredTextBoxExtender
                 ID="ftbeDireccion"
@@ -502,7 +462,7 @@
     </div>
 
     <!-- Validación resumida -->
-    <asp:ValidationSummary ID="vsDatosPersonales" runat="server" 
+    <asp:ValidationSummary ID="vsDatosPersonales" runat="server"
         CssClass="text-danger mb-3"
         ValidationGroup="DatosPersonales"
         ShowSummary="true"
@@ -510,5 +470,5 @@
 
 </div>
 <style>
-   
+  
 </style>
