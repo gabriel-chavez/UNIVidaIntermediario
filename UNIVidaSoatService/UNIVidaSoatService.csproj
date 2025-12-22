@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B3B5F45A-F304-4EA9-83CE-29F014D931AF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UNIVidaSoatService</RootNamespace>
+    <AssemblyName>UNIVidaSoatService</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\Rural\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\PasarelaPagos\ObtenerRequest.cs" />
+    <Compile Include="Models\PasarelaPagos\ObtenerResponse.cs" />
+    <Compile Include="Models\PasarelaPagos\VenQrAnularRequest.cs" />
+    <Compile Include="Models\PasarelaPagos\VenQrConsultarEfectivizacionRequest.cs" />
+    <Compile Include="Models\PasarelaPagos\VenQrConsultarEfectivizacionResponse.cs" />
+    <Compile Include="Models\PasarelaPagos\VenQrConsultarRequest.cs" />
+    <Compile Include="Models\PasarelaPagos\VenQrConsultarResponse.cs" />
+    <Compile Include="Models\SeguridadExternaRequest.cs" />
+    <Compile Include="Models\Seguridad\Seg01AutenticacionRequest.cs" />
+    <Compile Include="Models\Seguridad\Seg01AutenticacionResponse.cs" />
+    <Compile Include="Models\Seguridad\Seg02CambiarContraseniaRequest.cs" />
+    <Compile Include="Models\ServiceApiRequest.cs" />
+    <Compile Include="Models\ServiceApiResponse.cs" />
+    <Compile Include="Models\Soat\Ven01ValidarVendibleRequest.cs" />
+    <Compile Include="Models\Soat\Ven04ListarRequest.cs" />
+    <Compile Include="Models\Soat\DatosValidarVendibleRequest.cs" />
+    <Compile Include="Models\Soat\ParametrosEjecucionRequest.cs" />
+    <Compile Include="Models\Soat\ParametrosRequest.cs" />
+    <Compile Include="Models\Soat\ParObtenerDepartamentosResponse.cs" />
+    <Compile Include="Models\Soat\ParObtenerGestionResponse.cs" />
+    <Compile Include="Models\Soat\ParObtenerPlacasTipoResponse.cs" />
+    <Compile Include="Models\Soat\ParObtenerTipoDocIdentidadResponse.cs" />
+    <Compile Include="Models\Soat\ParObtenerVehiculoTiposResponse.cs" />
+    <Compile Include="Models\Soat\ParObtenerVehiculoUsosResponse.cs" />
+    <Compile Include="Models\Soat\Ven01ValidarVendibleYObtenerDatosResponse.cs" />
+    <Compile Include="Models\Soat\Ven02ObtenerPrimaRequest.cs" />
+    <Compile Include="Models\Soat\Ven02ObtenerPrimaResponse.cs" />
+    <Compile Include="Models\Soat\Ven04ListarResponse.cs" />
+    <Compile Include="Models\Soat\Ven05ObtenerPDFRequest.cs" />
+    <Compile Include="Models\Soat\Ven05ObtenerPDFResponse.cs" />
+    <Compile Include="Models\Soat\VenQrListarGeneradosRequest.cs" />
+    <Compile Include="Models\Soat\VenQrListarGeneradosResponse.cs" />
+    <Compile Include="Models\TransaccionOrigenRequest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\SoatApiClient.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Util\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
