@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace UNIVidaSoatService.Models.Soat
+namespace UNIVidaIntermediarioService.Models.Soat
 {
     public class VenQrListarGeneradosRequest
     {

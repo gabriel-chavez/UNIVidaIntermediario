@@ -3,9 +3,9 @@ using System;
 using System.Configuration;
 using System.Net.Http;
 using System.Text;
-using UNIVidaSoatService.Models;
+using UNIVidaIntermediarioService.Models;
 
-namespace UNIVidaSoatService.Services
+namespace UNIVidaIntermediarioService.Services
 {
     public class SoatApiClient
     {

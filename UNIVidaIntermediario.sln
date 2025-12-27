@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35514.174
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UNIVidaSoatService", "UNIVidaSoatService\UNIVidaSoatService.csproj", "{B3B5F45A-F304-4EA9-83CE-29F014D931AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UNIVidaIntermediarioService", "UNIVidaSoatService\UNIVidaIntermediarioService.csproj", "{B3B5F45A-F304-4EA9-83CE-29F014D931AF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UNIVidaIntermediario", "UNIVidaIntermediario\UNIVidaIntermediario.csproj", "{0C7A4999-852B-490E-9558-19FBBAA10E14}"
 EndProject

@@ -5,8 +5,8 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using UNIVidaSoatService.Models;
-using UNIVidaSoatService.Services;
+using UNIVidaIntermediarioService.Models;
+using UNIVidaIntermediarioService.Services;
 
 namespace UNIVidaIntermediario.Utils
 {

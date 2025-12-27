@@ -1,4 +1,4 @@
-﻿namespace UNIVidaSoatService.Models.Seguridad
+﻿namespace UNIVidaIntermediarioService.Models.Seguridad
 {
     public class Seg01AutenticacionRequest
     {

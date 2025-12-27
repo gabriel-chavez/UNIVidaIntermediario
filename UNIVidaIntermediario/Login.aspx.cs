@@ -5,8 +5,8 @@ using System.Web;
 using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using UNIVidaSoatService.Models;
-using UNIVidaSoatService.Models.Seguridad;
+using UNIVidaIntermediarioService.Models;
+using UNIVidaIntermediarioService.Models.Seguridad;
 using UNIVidaIntermediario.Utils;
 
 namespace UNIVidaIntermediario
@@ -90,8 +90,8 @@ namespace UNIVidaIntermediario
                 "Seg01Autenticacion",
                 datos
             );
-            return new ServiceApiResponse<Seg01AutenticacionResponse> { Exito = true, CodigoRetorno = 0, Mensaje = "", oSDatos = new Seg01AutenticacionResponse() { SegExtSeguridadToken = 1 } };
-            //return response;            
+            //return new ServiceApiResponse<Seg01AutenticacionResponse> { Exito = true, CodigoRetorno = 0, Mensaje = "", oSDatos = new Seg01AutenticacionResponse() { SegExtSeguridadToken = 1 } };
+            return response;            
         }
         public class RecaptchaResponse
         {

@@ -58,6 +58,7 @@
     <Compile Include="Models\Seguridad\Seg02CambiarContraseniaRequest.cs" />
     <Compile Include="Models\ServiceApiRequest.cs" />
     <Compile Include="Models\ServiceApiResponse.cs" />
+    <Compile Include="Models\Soatc\CliPN01ObtenerDatosResponse.cs" />
     <Compile Include="Models\Soat\Ven01ValidarVendibleRequest.cs" />
     <Compile Include="Models\Soat\Ven04ListarRequest.cs" />
     <Compile Include="Models\Soat\DatosValidarVendibleRequest.cs" />

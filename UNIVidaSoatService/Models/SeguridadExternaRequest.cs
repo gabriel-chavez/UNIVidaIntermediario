@@ -1,4 +1,4 @@
-﻿namespace UNIVidaSoatService.Models
+﻿namespace UNIVidaIntermediarioService.Models
 {
     public class SeguridadExternaRequest
     {

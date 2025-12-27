@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UNIVidaSoatService.Models
+namespace UNIVidaIntermediarioService.Models
 {
     public class ParObtenerGestionResponse
     {
@@ -14,3 +14,4 @@ namespace UNIVidaSoatService.Models
         public int PrioridadVenta { get; set; }
     }
 }
+

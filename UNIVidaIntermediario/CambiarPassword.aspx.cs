@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web.UI;
-using UNIVidaSoatService.Models.Seguridad;
-using UNIVidaSoatService.Models;
+using UNIVidaIntermediarioService.Models.Seguridad;
+using UNIVidaIntermediarioService.Models;
 using UNIVidaIntermediario.Utils;
 using System.Web.UI.WebControls;
 using System.Web.Security;

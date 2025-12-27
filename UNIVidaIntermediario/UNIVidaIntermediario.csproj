@@ -726,9 +726,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\UNIVidaSoatService\UNIVidaSoatService.csproj">
+    <ProjectReference Include="..\UNIVidaSoatService\UNIVidaIntermediarioService.csproj">
       <Project>{b3b5f45a-f304-4ea9-83ce-29f014d931af}</Project>
-      <Name>UNIVidaSoatService</Name>
+      <Name>UNIVidaIntermediarioService</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

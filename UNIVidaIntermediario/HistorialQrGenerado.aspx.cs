@@ -6,8 +6,8 @@ using System.Web;
 using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using UNIVidaSoatService.Models.PasarelaPagos;
-using UNIVidaSoatService.Models.Soat;
+using UNIVidaIntermediarioService.Models.PasarelaPagos;
+using UNIVidaIntermediarioService.Models.Soat;
 using UNIVidaIntermediario.Utils;
 
 namespace UNIVidaIntermediario

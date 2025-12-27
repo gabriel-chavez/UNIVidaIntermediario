@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace UNIVidaSoatService.Models
+namespace UNIVidaIntermediarioService.Models
 {
     [Serializable]
     public class ParObtenerDepartamentosResponse

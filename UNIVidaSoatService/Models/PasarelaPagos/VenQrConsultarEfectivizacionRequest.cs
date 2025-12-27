@@ -1,4 +1,4 @@
-﻿namespace UNIVidaSoatService.Models.PasarelaPagos
+﻿namespace UNIVidaIntermediarioService.Models.PasarelaPagos
 {
     public class VenQrConsultarEfectivizacionRequest
     {
