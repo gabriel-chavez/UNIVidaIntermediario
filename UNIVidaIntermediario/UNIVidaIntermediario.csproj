@@ -159,6 +159,7 @@
     <Content Include="Content\bootstrap-grid.rtl.css.map" />
     <Content Include="Content\bootstrap-grid.min.css.map" />
     <Content Include="Content\bootstrap-grid.css.map" />
+    <Content Include="WebForm1.aspx" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -332,8 +333,8 @@
     <Content Include="Template\src\js\mdb\util\touch\touchUtil.js" />
     <Content Include="Template\sweetAlert\sweetalert2.all.min.js" />
     <Content Include="UCDatosPersonales.ascx" />
+    <Content Include="Venta1.aspx" />
     <Content Include="Venta.aspx" />
-    <Content Include="VentaIntermediario.aspx" />
     <Content Include="VentasRealizadas.aspx" />
     <Content Include="ViewSwitcher.ascx" />
     <Content Include="Web.config" />
@@ -682,19 +683,19 @@
     </Compile>
     <Compile Include="Utils\ParametrosConfiguracion.cs" />
     <Compile Include="Utils\WebFormHelpers.cs" />
+    <Compile Include="Venta1.aspx.cs">
+      <DependentUpon>Venta1.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Venta1.aspx.designer.cs">
+      <DependentUpon>Venta1.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Venta.aspx.cs">
       <DependentUpon>Venta.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Venta.aspx.designer.cs">
       <DependentUpon>Venta.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="VentaIntermediario.aspx.cs">
-      <DependentUpon>VentaIntermediario.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="VentaIntermediario.aspx.designer.cs">
-      <DependentUpon>VentaIntermediario.aspx</DependentUpon>
     </Compile>
     <Compile Include="VentasRealizadas.aspx.cs">
       <DependentUpon>VentasRealizadas.aspx</DependentUpon>
@@ -709,6 +710,13 @@
     </Compile>
     <Compile Include="ViewSwitcher.ascx.designer.cs">
       <DependentUpon>ViewSwitcher.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="WebForm1.aspx.cs">
+      <DependentUpon>WebForm1.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebForm1.aspx.designer.cs">
+      <DependentUpon>WebForm1.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

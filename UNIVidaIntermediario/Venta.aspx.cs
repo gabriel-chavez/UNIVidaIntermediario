@@ -1,20 +1,22 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Web;
-using System.Web.Security;
-using System.Web.Services;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using UNIVidaIntermediario.Utils;
 using UNIVidaIntermediarioService.Models;
 using UNIVidaIntermediarioService.Models.PasarelaPagos;
-using UNIVidaIntermediarioService.Models.Soat;
-using UNIVidaIntermediario.Utils;
+using UNIVidaSoatService.Models.Soatc;
 
 namespace UNIVidaIntermediario
 {
     public partial class Venta : System.Web.UI.Page
     {
+        private static readonly Random _random = new Random();
+
         protected List<ParObtenerTipoDocIdentidadResponse> TiposDocumentos
         {
             get
@@ -27,137 +29,112 @@ namespace UNIVidaIntermediario
                 ViewState["TiposDocumentos"] = value;
             }
         }
-        protected int Prima
+        protected CliPN01ObtenerDatosResponse DatosAsegurado
         {
             get
             {
-                return (int)(ViewState["Prima"] ?? 0);
+                return ViewState["DatosAsegurado"] as CliPN01ObtenerDatosResponse ??
+                       new CliPN01ObtenerDatosResponse();
             }
             set
             {
-                ViewState["Prima"] = value;
+                ViewState["DatosAsegurado"] = value;
+            }
+        }
+        protected CliPN01ObtenerDatosResponse DatosTomador
+        {
+            get
+            {
+                return ViewState["DatosTomador"] as CliPN01ObtenerDatosResponse ??
+                       new CliPN01ObtenerDatosResponse();
+            }
+            set
+            {
+                ViewState["DatosTomador"] = value;
             }
         }
 
 
-        protected List<ParObtenerDepartamentosResponse> Departamentos
+        private List<Lpolbenbeneficiario> ListaBeneficiarios
         {
             get
             {
-                return ViewState["Departamentos"] as List<ParObtenerDepartamentosResponse> ??
-                       new List<ParObtenerDepartamentosResponse>();
+                if (Session["Beneficiarios"] == null)
+                    Session["Beneficiarios"] = new List<Lpolbenbeneficiario>();
+                return (List<Lpolbenbeneficiario>)Session["Beneficiarios"];
             }
-            set
-            {
-                ViewState["Departamentos"] = value;
-            }
+            set { Session["Beneficiarios"] = value; }
         }
-
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["NombreUsuario"] == null)
-            {
-                Response.Redirect(FormsAuthentication.LoginUrl, true);
-            }
-            else
-            {
-                Response.Cache.SetCacheability(HttpCacheability.NoCache);
-                Response.Cache.SetNoStore();
-                Response.AppendHeader("Pragma", "no-cache");
-                Response.Expires = -1;
-            }
             if (!IsPostBack)
             {
-                InicializarParametros();
+                ParObtenerTipoDocIdentidad();
             }
-            string controlID = GetPostBackControlId();
-
-            System.Diagnostics.Debug.WriteLine("Postback originado por: " + controlID);
-            if (Request.Params["__EVENTTARGET"] == "AperturarPasoDocumento")
+            if (Request["__EVENTTARGET"] == "NuevoAsegurado")
             {
-                AperturarPasoDocumento();
+                NuevoAsegurado();
             }
-
+            if (Request["__EVENTTARGET"] == "NuevoTomador")
+            {
+                NuevoTomador();
+            }
         }
-
-        private void AperturarPasoDocumento()
+        private void NuevoAsegurado()
         {
-            
-            var response = Ven05ObtenerPDF();
-            if (response.Exito)
-            {                
-                mvFormulario.ActiveViewIndex = 4;
-                var archivoAdjunto = response.oSDatos.oArchivosAdjuntos;
-                if (archivoAdjunto == null)
-                    return;
-                string base64 = Convert.ToBase64String(archivoAdjunto.ArchivoAdjunto);
-                pdfViewer.Attributes["src"] = "data:application/pdf;base64," + base64;
-            }
 
+            DatosAsegurado = new CliPN01ObtenerDatosResponse() { PerDocumentoIdentidadNumero = int.Parse(txtDocumentoBusqueda.Text) };
+            DatosAsegurado.EsNuevo = true;
+            mvFormulario.ActiveViewIndex = 1;
+            CargarDatosPaso2();
         }
-
-        private string GetPostBackControlId()
+        private void NuevoTomador()
         {
-            string ctrlName = Page.Request.Params["__EVENTTARGET"];
-            if (!string.IsNullOrEmpty(ctrlName))
-            {
-                return ctrlName;
-            }
 
-            // Si __EVENTTARGET está vacío, probablemente fue un submit desde un botón o Enter en un TextBox
-            foreach (string ctl in Request.Form)
+            DatosTomador = new CliPN01ObtenerDatosResponse() { PerDocumentoIdentidadNumero = int.Parse(txtDocumentoBusquedaTomador.Text) };
+            DatosTomador.EsNuevo = true;
+            mvFormulario.ActiveViewIndex = 4;
+            CargarDatosPaso4();
+        }
+        protected void gvClientes_RowCommand(object sender, GridViewCommandEventArgs e)
+        {
+            if (e.CommandName == "SeleccionarCliente")
             {
-                Control c = Page.FindControl(ctl);
-                if (c is System.Web.UI.WebControls.Button || c is System.Web.UI.WebControls.ImageButton)
+                // Separar los datos del CommandArgument
+                int perSecuencial = int.Parse(e.CommandArgument.ToString());
+                List<CliPN01ObtenerDatosResponse> asegurados = (List<CliPN01ObtenerDatosResponse>)Session["MultiplesAsegurados"];
+                DatosAsegurado = asegurados.Where(x => x.PerSecuencial == perSecuencial).FirstOrDefault();
+                var validaCobertura = ValidarCoberturaAsegurado();
+                if (validaCobertura.Exito)
                 {
-                    return ctl;
+                    WebFormHelpers.EjecutarNotificacion(
+                                        this,
+                                        "info",
+                                        "El cliente cuenta con cobertura de SOATC con los siguientes datos: " + validaCobertura.oSDatos.DatosAsegurado
+                                    );
                 }
+                else
+                {
+                    mvFormulario.ActiveViewIndex = 1; // paso 2
+                    CargarDatosPaso2();
+                }
+
             }
-            return null;
         }
-        private void InicializarParametros()
+
+        protected void gvClientesTomador_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            ddlTipoIdentificacion.SelectedValue = "1";
-            ParObtenerPlacasTipo();
-            ParObtenerGestion();
-            ParObtenerVehiculoTipos();
-            ParObtenerVehiculoUsos();
-            ParObtenerDepartamentos();
-            ParObtenerTipoDocIdentidad();
-
-        }
-        private void Ven02ObtenerPrima()
-        {
-            var datos = new Ven02ObtenerPrimaRequest
+            if (e.CommandName == "SeleccionarCliente")
             {
-                SoatTParDepartamentoPcFk = ddlPlazaCirculacion.SelectedValue.ToString(),
-                SoatTParVehiculoTipoFk = int.Parse(ddlTipoVehiculo.SelectedValue.ToString()),
-                SoatTParVehiculoUsoFk = int.Parse(ddlTipoUso.SelectedValue.ToString()),
-                VehiPlaca = txtItentificador.Text,
-                SoatTParGestionFk = int.Parse(ddlGestion.SelectedValue.ToString()),
-            };
-
-            var response = WebFormHelpers.ConsumirMetodoApi<Ven02ObtenerPrimaResponse>(
-                "CoreSOAT",
-                "Ventas",
-                "Ven02ObtenerPrima",
-                datos
-            );
-
-            if (response != null && response.Exito && response.oSDatos != null)
-            {
-                Prima = response.oSDatos.Prima;
+                // Separar los datos del CommandArgument
+                int perSecuencial = int.Parse(e.CommandArgument.ToString());
+                List<CliPN01ObtenerDatosResponse> tomador = (List<CliPN01ObtenerDatosResponse>)Session["MultiplesAsegurados"];
+                DatosTomador = tomador.Where(x => x.PerSecuencial == perSecuencial).FirstOrDefault();
+                mvFormulario.ActiveViewIndex = 4; // paso 5
+                CargarDatosPaso4();
             }
-            else
-            {
-                WebFormHelpers.EjecutarNotificacion(
-                    this,
-                    "error",
-                    response.Mensaje
-                );
-            }
-
         }
+
         private void ParObtenerTipoDocIdentidad()
         {
             var response = WebFormHelpers.ConsumirMetodoApi<List<ParObtenerTipoDocIdentidadResponse>>(
@@ -186,572 +163,611 @@ namespace UNIVidaIntermediario
                 );
             }
         }
-        private void ParObtenerPlacasTipo()
+        private ServiceApiResponse<CliPN03ValidarCoberturaAseguradoResponse> ValidarCoberturaAsegurado()
         {
-            var response = WebFormHelpers.ConsumirMetodoApi<List<ParObtenerPlacasTipoResponse>>(
-                "CoreSOAT",
-                "Parametricas",
-                "ParObtenerPlacasTipo",
-                new { }
-            );
-            if (response != null && response.Exito && response.oSDatos != null)
-            {
-                WebFormHelpers.CargarDropDownList(
-                    ddlTipoIdentificacion,
-                    response.oSDatos,
-                    item => item.Descripcion,
-                    item => item.Secuencial.ToString()
-                );
-            }
-            else
-            {
-                WebFormHelpers.EjecutarNotificacion(
-                    this,
-                    "error",
-                    response?.Mensaje
-                );
-            }
-        }
 
-        private void ParObtenerVehiculoTipos()
-        {
-            var response = WebFormHelpers.ConsumirMetodoApi<List<ParObtenerVehiculoTiposResponse>>(
-                "CoreSOAT",
-                "Parametricas",
-                "ParObtenerVehiculoTipos",
-                new { }
-            );
-            if (response != null && response.Exito && response.oSDatos != null)
-            {
-                WebFormHelpers.CargarDropDownList(
-                    ddlTipoVehiculo,
-                    response.oSDatos,
-                    item => item.Descripcion,
-                    item => item.Secuencial.ToString()
-                );
-                ddlTipoVehiculo.Items.Insert(0, new ListItem("Seleccione una opción", "0"));
-            }
-            else
-            {
-                WebFormHelpers.EjecutarNotificacion(
-                    this,
-                    "error",
-                    response?.Mensaje
-                );
-            }
-        }
-        private void ParObtenerVehiculoUsos()
-        {
-            var response = WebFormHelpers.ConsumirMetodoApi<List<ParObtenerVehiculoUsosResponse>>(
-                "CoreSOAT",
-                "Parametricas",
-                "ParObtenerVehiculoUsos",
-                new { }
-            );
-            if (response != null && response.Exito && response.oSDatos != null)
-            {
-                WebFormHelpers.CargarDropDownList(
-                    ddlTipoUso,
-                    response.oSDatos,
-                    item => item.Descripcion,
-                    item => item.Secuencial.ToString()
-                );
-                ddlTipoUso.Items.Insert(0, new ListItem("Seleccione una opción", "0"));
-            }
-            else
-            {
-                WebFormHelpers.EjecutarNotificacion(
-                    this,
-                    "error",
-                    response?.Mensaje
-                );
-            }
-        }
-
-        private void ParObtenerGestion()
-        {
-            var response = WebFormHelpers.ConsumirMetodoApi<List<ParObtenerGestionResponse>>(
-                "CoreSOAT",
-                "Parametricas",
-                "ParObtenerGestion",
-                new { }
-            );
-            if (response != null && response.Exito && response.oSDatos != null)
-            {
-                WebFormHelpers.CargarDropDownList(
-                    ddlGestion,
-                    response.oSDatos,
-                    item => item.Secuencial.ToString(),
-                    item => item.Secuencial.ToString()
-                );
-            }
-            else
-            {
-                WebFormHelpers.EjecutarNotificacion(
-                    this,
-                    "error",
-                    response?.Mensaje
-                );
-            }
-        }
-
-        private void ParObtenerDepartamentos()
-        {
-            var response = WebFormHelpers.ConsumirMetodoApi<List<ParObtenerDepartamentosResponse>>(
-                "CoreSOAT",
-                "Parametricas",
-                "ParObtenerDepartamentos",
-                new { }
-            );
-            if (response != null && response.Exito && response.oSDatos != null)
-            {
-                WebFormHelpers.CargarDropDownList(
-                    ddlPlazaCirculacion,
-                    response.oSDatos,
-                    item => item.Descripcion,
-                    item => item.CodigoDepartamento
-                );
-                Departamentos = response.oSDatos;
-                ddlPlazaCirculacion.Items.Insert(0, new ListItem("Seleccione una opción", "0"));
-            }
-            else
-            {
-                WebFormHelpers.EjecutarNotificacion(
-                    this,
-                    "error",
-                    response?.Mensaje
-                );
-            }
-        }
-
-        private ServiceApiResponse<Ven01ValidarVendibleYObtenerDatosResponse> Ven01ValidarVendibleYObtenerDatos()
-        {
-            var datos = new DatosValidarVendibleRequest
-            {
-                VehiPlaca = txtItentificador.Text.ToUpper(),
-                SoatTParGestionFk = int.Parse(ddlGestion.SelectedValue.ToString()),
-                VehiTParPlacaTipo = int.Parse(ddlTipoIdentificacion.SelectedValue.ToString())
-            };
-
-            var response = WebFormHelpers.ConsumirMetodoApi<Ven01ValidarVendibleYObtenerDatosResponse>(
-                "CoreSOAT",
-                "Ventas",
-                "Ven01ValidarVendibleYObtenerDatos",
-                datos
-            );
-            return response;
-        }
-        private ServiceApiResponse<Ven05ObtenerPDFResponse> Ven05ObtenerPDF()
-        {
-            int soatNroComprobante=hfTVehiSoatPropFk.Value != "" ? int.Parse(hfTVehiSoatPropFk.Value) : 0;
-            var datos = new Ven05ObtenerPDFRequest
-            {
-                PdfConDiseño = false,
-                SoatNroComprobante = soatNroComprobante,
-                lSoatDocumentosSolicitados = new Lsoatdocumentossolicitado[]
-    {
-        new Lsoatdocumentossolicitado { DocumentoTipo = 1, DocumentoRequerido = false },
-        new Lsoatdocumentossolicitado { DocumentoTipo = 2, DocumentoRequerido = false },
-        new Lsoatdocumentossolicitado { DocumentoTipo = 3, DocumentoRequerido = true },
-        new Lsoatdocumentossolicitado { DocumentoTipo = 4, DocumentoRequerido = false },
-        new Lsoatdocumentossolicitado { DocumentoTipo = 5, DocumentoRequerido = false },
-        new Lsoatdocumentossolicitado { DocumentoTipo = 6, DocumentoRequerido = false }
-    }
-            };
-
-            var response = WebFormHelpers.ConsumirMetodoApi<Ven05ObtenerPDFResponse>(
-                "CoreSOAT",
-                "Ventas",
-                "Ven05ObtenerPDF",
-                datos
-            );
-            return response;
-        }
-        private ServiceApiResponse<Ven01ValidarVendibleYObtenerDatosResponse> Ven01ValidarVendible(CDatosFactura oDatosFactura)
-        {
-            var datos = new Ven01ValidarVendibleRequest
-            {
-                VehiPlaca = txtItentificador.Text.ToUpper(),
-                SoatTParGestionFk = int.Parse(ddlGestion.SelectedValue.ToString()),
-                TParCriterioBusquedaDetalleFk = int.Parse(ddlTipoIdentificacion.SelectedValue.ToString()),
-                DatosFacturacion = oDatosFactura
-            };
-
-            var response = WebFormHelpers.ConsumirMetodoApi<Ven01ValidarVendibleYObtenerDatosResponse>(
-                "CoreSOAT",
-                "Ventas",
-                "Ven01ValidarVendible",
-                datos
-            );
-            return response;
-        }
-        private string ArmarParametrosEjecucion()
-        {
-            var parametrosConfiguracion = new ParametrosConfiguracion();
-            var parametros = new ParametrosEjecucionRequest
-            {
-                PdfConDiseno = true,
-                VehiPlaca = txtItentificador.Text.ToUpper(),
-                SoatTParDepartamentoPcFk = ddlPlazaCirculacion.SelectedValue.ToUpper(),
-                SoatTParVehiculoTipoFk = int.Parse(ddlTipoVehiculo.SelectedValue.ToString()),
-                LsoatDocumentosSolicitados = new List<DocumentosSolicitados>
-        {
-            new DocumentosSolicitados { DocumentoRequerido = false, DocumentoTipo = 1 },
-            new DocumentosSolicitados { DocumentoRequerido = false, DocumentoTipo = 2 },
-            new DocumentosSolicitados { DocumentoRequerido = false, DocumentoTipo = 3 },
-            new DocumentosSolicitados { DocumentoRequerido = false, DocumentoTipo = 4 },
-            new DocumentosSolicitados { DocumentoRequerido = false, DocumentoTipo = 5 },
-            new DocumentosSolicitados { DocumentoRequerido = false, DocumentoTipo = 6 }
-        },
-                SoatRosetaNumero = 0,
-                SoatTParGestionFk = int.Parse(ddlGestion.SelectedValue),
-                SoatTParVehiculoUsoFk = int.Parse(ddlTipoUso.SelectedValue),
-                SoatTParDepartamentoVtFk = ddlPlazaCirculacion.SelectedValue.ToString(),
-                SoatTParMedioPagoFk = 30,//QR
-                TparCriterioBusquedaDetalleFk = int.Parse(ddlTipoIdentificacion.SelectedValue),
-                FactPrima = Prima,
-                FactRazonSocial = txtRazonSocial.Text.ToUpper(),
-                FactNitCi = txtNumeroDocumento.Text.ToUpper(),
-                FactTipoDocIdentidadFk = int.Parse(ddlTipoDocumento.SelectedValue),
-                FactCorreoCliente = txtCorreo.Text.ToString(),
-                FactTelefonoCliente = txtCelular.Text.ToString(),
-                FactCiComplemento = txtComplemento.Text.ToUpper(),
-            };
-            var paraMetrosEjecucion = new ServiceApiRequest
-            {
-                Sistema = "CoreSOAT",
-                Modulo = "Ventas",
-                Metodo = "Ven03EfectivizarPDFS",
-                Parametros = new ParametrosRequest
+            var response = WebFormHelpers.ConsumirMetodoApi<CliPN03ValidarCoberturaAseguradoResponse>(
+                "CoreTecnico",
+                "ClientesPN",
+                "CliPN03ValidarCoberturaAsegurado",
+                new
                 {
-                    oEDatos = parametros,
-                    oESeguridadExterna = new SeguridadExternaRequest
+                    TPolizaDetalleFk = -1,
+                    TParCliDocumentoIdentidadTipoFk = DatosAsegurado.PerTParCliDocumentoIdentidadTipoFk,
+                    DocumentoIdentidadNumero = DatosAsegurado.PerDocumentoIdentidadNumero,
+                    DocumentoIdentidadExtension = DatosAsegurado.PerDocumentoIdentidadExtension
+                }
+            );
+            return response;
+        }
+
+        private void BuscarAsegurado()
+        {
+            var response = WebFormHelpers.ConsumirMetodoApi<List<CliPN01ObtenerDatosResponse>>(
+                "CoreTecnico",
+                "ClientesPN",
+                "CliPN01ObtenerDatos",
+               new
+               {
+                   PerTParCliDocumentoIdentidadTipoFk = -1,
+                   PerDocumentoIdentidadNumero = txtDocumentoBusqueda.Text,
+                   PerDocumentoIdentidadExtension = "",
+                   PerTParGenDepartamentoFkDocumentoIdentidad = -1
+               }
+            );
+            if (response != null && response.Exito && response.oSDatos != null)
+            {
+                //WebFormHelpers.EjecutarNotificacion(
+                //    this,
+                //    "success",
+                //    response?.Mensaje
+                //);
+                if (response.oSDatos.Count() == 1)
+                {
+                    DatosAsegurado = response.oSDatos[0];
+                    DatosAsegurado.EsNuevo = false;
+                    var validaCobertura = ValidarCoberturaAsegurado();
+                    if (validaCobertura.Exito)
                     {
-                        SegExtToken = long.Parse(Session["TokenSeguridad"].ToString()),
-                        SegExtUsuario = Session["NombreUsuario"].ToString()
-                    },
-                    oETransaccionOrigen = new TransaccionOrigenRequest
-                    {
-                        TraOriCajero = Session["NombreUsuario"].ToString(),
-                        TraOriCanal = parametrosConfiguracion.TraOriCanal,
-                        TraOriEntidad = "Univida",
-                        TraOriIntermediario = 0,
-                        TraOriSucursal = "10100",
-                        TraOriAgencia = ""
+                        WebFormHelpers.EjecutarNotificacion(
+                                            this,
+                                            "info",
+                                            "El cliente cuenta con cobertura de SOATC con los siguientes datos: " + validaCobertura.oSDatos.DatosAsegurado
+                                        );
+
                     }
-                }
-            };
+                    else
+                    {
+                        mvFormulario.ActiveViewIndex = 1; // paso 2
+                        CargarDatosPaso2();
 
-            return JsonConvert.SerializeObject(paraMetrosEjecucion);
-
-        }
-        private ServiceApiResponse<ObtenerResponse> Obtener()
-        {
-            var jsonParametrosEjecucion = ArmarParametrosEjecucion();
-            var parametros = new ParametrosConfiguracion();
-            Random random = new Random();
-            var datos = new ObtenerRequest
-            {
-                CodigoUnico = 0,
-                TipoTramite = parametros.TipoTramite,
-                ParametrosEjecucion = jsonParametrosEjecucion,
-                oDatosQR = new Odatosqr
-                {
-                    Importe = Prima,
-                    Referencia = "Compra de soat " + ddlGestion.SelectedValue.ToString(),
-                    CorreoNotificacion = txtCorreo.Text,
-                    Variable1 = txtItentificador.Text,
-                    Variable2 = ddlGestion.SelectedValue.ToString(),
-                }
-            };
-
-            var response = WebFormHelpers.ConsumirMetodoApi<ObtenerResponse>(
-                "CoreSOAT",
-                "Ventas",
-                "VenQrObtener",
-                datos
-            );
-            return response;
-        }
-        private ServiceApiResponse<object> Anular()
-        {
-
-            var parametros = new ParametrosConfiguracion();
-            Random random = new Random();
-            int numeroAleatorio = random.Next(0, int.MaxValue);
-            var datos = new VenQrAnularRequest
-            {
-                CodigoUnico = int.Parse(hfCodigoUnico.Value),
-                TipoTramite = parametros.TipoTramite,
-            };
-
-            var response = WebFormHelpers.ConsumirMetodoApi<object>(
-                "CoreSOAT",
-                "Ventas",
-                "VenQrAnular",
-                datos
-            );
-            return response;
-        }
-
-        protected void btnSiguiente1_Click(object sender, EventArgs e)
-        {
-            var response = Ven01ValidarVendibleYObtenerDatos();
-            if (response.Exito)
-            {
-                mvFormulario.ActiveViewIndex = 1;
-                if (response.oSDatos != null)
-                {
-                    ddlTipoVehiculo.SelectedValue = response.oSDatos.SoatTParVehiculoTipoFk.ToString();
-                    ddlTipoUso.SelectedValue = response.oSDatos.SoatTParVehiculoUsoFk.ToString();
-                    ddlPlazaCirculacion.SelectedValue = response.oSDatos.SoatTParDepartamentoPcFk.ToString();
-                    ddlTipoVehiculo.Enabled = false;
-                    tituloVentaNuevaRenovacion.InnerText = "Renovación Soat " + ddlGestion.SelectedValue.ToString();
-
+                    }
+                    gvClientes.DataSource = null;
+                    divGridAsegurados.Visible = false;
 
                 }
                 else
                 {
-                    ddlTipoVehiculo.SelectedValue = "0";
-                    ddlTipoUso.SelectedValue = "0";
-                    ddlPlazaCirculacion.SelectedValue = "0";
-                    ddlTipoVehiculo.Enabled = true;
-                    tituloVentaNuevaRenovacion.InnerText = "Venta nueva Soat " + ddlGestion.SelectedValue.ToString();
+                    divGridAsegurados.Visible = true;
+                    gvClientes.DataSource = response.oSDatos;
+                    Session["MultiplesAsegurados"] = response.oSDatos;
+                    gvClientes.DataBind();
+
+                }
+            }
+            else
+            {
+
+                WebFormHelpers.EjecutarNotificacion(
+                    this,
+                    "error",
+                    response?.Mensaje
+                );
+                if (response?.Mensaje == "La información del cliente no pudo ser obtenida.")
+                {
+                    string script = @"
+                    Swal.fire({
+                        title: 'Atención!',
+                        text: 'El cliente no se encuentra registrado. ¿Desea registrarlo ahora?',
+                        type: 'info', // en v7.x se usa 'type' en lugar de 'icon'
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí',
+                        cancelButtonText: 'No',
+                        allowOutsideClick: false
+                    }).then(function(result){
+                        if(result.value) { // en v7.x se usa 'value' para saber si confirmó
+                            __doPostBack('NuevoAsegurado');
+                        }
+                    });
+                ";
+
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "SwalBackend", script, true);
+
                 }
 
+            }
+        }
+        private void BuscarTomador()
+        {
+            var response = WebFormHelpers.ConsumirMetodoApi<List<CliPN01ObtenerDatosResponse>>(
+                "CoreTecnico",
+                "ClientesPN",
+                "CliPN01ObtenerDatos",
+               new
+               {
+                   PerTParCliDocumentoIdentidadTipoFk = -1,
+                   PerDocumentoIdentidadNumero = txtDocumentoBusquedaTomador.Text,
+                   PerDocumentoIdentidadExtension = "",
+                   PerTParGenDepartamentoFkDocumentoIdentidad = -1
+               }
+            );
+            if (response != null && response.Exito && response.oSDatos != null)
+            {
+                WebFormHelpers.EjecutarNotificacion(
+                    this,
+                    "success",
+                    response?.Mensaje
+                );
+                if (response.oSDatos.Count() == 1)
+                {
+                    DatosTomador = response.oSDatos[0];
+                    DatosTomador.EsNuevo = false;
+                    mvFormulario.ActiveViewIndex = 4; // paso 5
+                    CargarDatosPaso4();
+                    gvClientesTomador.DataSource = null;
+                    divGridAsegurados.Visible = false;
+                }
+                else
+                {
+                    divGridTomador.Visible = true;
+                    gvClientesTomador.DataSource = response.oSDatos;
+                    Session["MultiplesTomadores"] = response.oSDatos;
+                    gvClientesTomador.DataBind();
 
+                }
             }
             else
             {
-                lblMensaje.Text = response.Mensaje;
-                divMensaje.Visible = true;
-            }
 
-        }
-        private void CargarIcono()
-        {
-            string selectedValue = ddlTipoVehiculo.SelectedValue;
-            string iconHtml;
-            string baseClasses = "fa-3x me-3"; // Clases base para todos los iconos
+                WebFormHelpers.EjecutarNotificacion(
+                    this,
+                    "error",
+                    response?.Mensaje
+                );
+                if (response?.Mensaje == "La información del cliente no pudo ser obtenida.")
+                {
+                    string script = @"
+                    Swal.fire({
+                        title: 'Atención!',
+                        text: 'El cliente no se encuentra registrado. ¿Desea registrarlo ahora?',
+                        type: 'info', // en v7.x se usa 'type' en lugar de 'icon'
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí',
+                        cancelButtonText: 'No',
+                        allowOutsideClick: false
+                    }).then(function(result){
+                        if(result.value) { // en v7.x se usa 'value' para saber si confirmó
+                            __doPostBack('NuevoTomador');
+                        }
+                    });
+                ";
 
-            switch (selectedValue)
-            {
-                case "1": // Motocicleta
-                    iconHtml = $"<i class='fa-solid fa-motorcycle {baseClasses} text-success'></i>";
-                    break;
-                case "2": // Automóvil
-                    iconHtml = $"<i class='fa-solid fa-car {baseClasses} text-primary'></i>";
-                    break;
-                case "3": // Jeep
-                    iconHtml = $"<i class='fa-solid fa-car-side {baseClasses} text-warning'></i>"; // Reemplazo de Jeep
-                    break;
-                case "4": // Camioneta
-                    iconHtml = $"<i class='fa-solid fa-truck-pickup {baseClasses} text-info'></i>";
-                    break;
-                case "5": // Vagoneta
-                    iconHtml = $"<i class='fa-solid fa-car {baseClasses} text-primary'></i>"; // Vagoneta
-                    break;
-                case "6": // Microbús
-                    iconHtml = $"<i class='fa-solid fa-bus-simple {baseClasses} text-dark'></i>";
-                    break;
-                case "7": // Colectivo
-                    iconHtml = $"<i class='fa-solid fa-bus {baseClasses} text-dark'></i>";
-                    break;
-                case "8": // Ómnibus
-                    iconHtml = $"<i class='fa-solid fa-bus {baseClasses} text-primary'></i>";
-                    break;
-                case "9": // Tracto camión
-                    iconHtml = $"<i class='fa-solid fa-truck-monster {baseClasses} text-danger'></i>"; // Reemplazo de Tracto camión
-                    break;
-                case "10": // Minibús 8 ocupantes
-                case "11": // Minibús 11 ocupantes
-                case "12": // Minibús 15 ocupantes
-                    iconHtml = $"<i class='fa-solid fa-van-shuttle {baseClasses} text-secondary'></i>"; // Minibús
-                    break;
-                case "13": // Camión 3 ocupantes
-                case "14": // Camión 18 ocupantes
-                case "15": // Camión 25 ocupantes
-                    iconHtml = $"<i class='fa-solid fa-truck-moving {baseClasses} text-danger'></i>";
-                    break;
-                default: // Valor no reconocido
-                    iconHtml = $"<i class='fa-solid fa-question-circle {baseClasses} text-muted'></i>"; // Icono por defecto
-                    break;
-            }
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "SwalBackend", script, true);
 
-            spanVehiculo.InnerHtml = iconHtml;
-        }
-        protected void ddlTipoDocumento_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            int secuencialSeleccionado = Convert.ToInt32(ddlTipoDocumento.SelectedValue);
-            var tipoDocumentoSeleccionado = TiposDocumentos.Find(t => t.Secuencial == secuencialSeleccionado);
+                }
 
-            if (tipoDocumentoSeleccionado.Secuencial == 1)
-            {
-                divComplemento.Visible = true;
-            }
-            else
-            {
-                divComplemento.Visible = false;
             }
         }
+
 
         protected void btnAnterior1_Click(object sender, EventArgs e)
         {
-            mvFormulario.ActiveViewIndex = 0;
+            mvFormulario.ActiveViewIndex = 0; // Volver al paso 1
         }
-
-        protected void btnSiguiente2_Click(object sender, EventArgs e)
-        {
-            Ven02ObtenerPrima();
-            string departamentoSeleccionado = ddlPlazaCirculacion.SelectedValue;
-            var departamento = Departamentos.Find(t => t.CodigoDepartamento == departamentoSeleccionado).Descripcion;
-            spanDepartamento.InnerHtml = WebFormHelpers.CapitalizarPrimeraLetraDeCadaPalabra(departamento);
-            spanPrima.InnerHtml = Prima.ToString();
-            spanIdentificador.InnerHtml = txtItentificador.Text.ToUpper();
-            spanGestion.InnerHtml = ddlGestion.SelectedItem.ToString();
-            CargarIcono();
-            mvFormulario.ActiveViewIndex = 2;
-
-            txtRazonSocial.Text = "";
-            txtNumeroDocumento.Text = "";
-            ddlTipoDocumento.SelectedIndex = 0;
-            txtCorreo.Text = "";
-            txtCelular.Text = "";
-            txtComplemento.Text = "";
-
-
-        }
-
         protected void btnAnterior2_Click(object sender, EventArgs e)
         {
-            mvFormulario.ActiveViewIndex = 1;
+            mvFormulario.ActiveViewIndex = 1; // Volver al paso 2 (datos asegurado)
         }
-
-        protected void btnFinalizar_Click(object sender, EventArgs e)
+        protected void btnSiguiente2_Click(object sender, EventArgs e)
         {
+            bool tomadorDiferente = rbTomadorDiferenteSi.Checked;
 
-            Response.Write("<script>alert('Formulario enviado correctamente');</script>");
-        }
 
-        protected void btnObtenerQr_Click(object sender, EventArgs e)
-        {
-            var datosFactura = new CDatosFactura
+            if (tomadorDiferente)
             {
-                FactPrima = Prima,
-                FactRazonSocial = txtRazonSocial.Text.ToUpper(),
-                FactNitCi = txtNumeroDocumento.Text.ToUpper(),
-                FactTipoDocIdentidadFk = int.Parse(ddlTipoDocumento.SelectedValue),
-                FactCorreoCliente = txtCorreo.Text.ToString(),
-                FactTelefonoCliente = txtCelular.Text.ToString(),
-                FactCiComplemento = txtComplemento.Text.ToUpper(),
-            };
+                // Ir a formulario de datos del tomador
+                mvFormulario.ActiveViewIndex = 3; // Paso 4: Busqueda de cliente tomador
+            }
+            else
+            {
+                //cargamos los datos del asegurado por defecto para evitar errores
+                // DatosTomador = DatosAsegurado;
+                ucTomador.CargarDatos(DatosAsegurado);
+                mvFormulario.ActiveViewIndex = 5; // Paso 5: beneficiarios
+                Session["PasoAnteriorBeneficiarios"] = "2";
+            }
 
-            var validarVendinle = Ven01ValidarVendible(datosFactura);
-            if (!validarVendinle.Exito)
+        }
+        protected void btnSiguiente1_Click(object sender, EventArgs e)
+        {
+            var datosAseguradoResponse = ucAsegurado.ObtenerDatosFormulario();
+            Emi01PolizaEmitirPDFRequest datos = new Emi01PolizaEmitirPDFRequest
+            {
+                PolMaeTParGenDepartamentoFk = datosAseguradoResponse.PolMaeTParGenDepartamentoFk,
+                PolMaeTProductoPlanPrimaFk = 25,//SOATC
+                lPolBenBeneficiario = ListaBeneficiarios,
+                oEDatosAsegurado = datosAseguradoResponse,
+                oEDatosTomador = datosAseguradoResponse,
+                oETransaccionIdentificador = new Oetransaccionidentificador
+                {
+                    TraIdeLlaveA = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                    TraIdeLlaveB = _random.Next(100000, 999999).ToString()
+                }
+            };
+            var validarVendible = Emi11PolizaEfectivizarValidarVendible(datos);
+            if (validarVendible.Exito)
+                mvFormulario.ActiveViewIndex = 2;
+            else
             {
                 WebFormHelpers.EjecutarNotificacion(
                     this,
                     "error",
-                    validarVendinle.Mensaje
+                    validarVendible.Mensaje
                 );
-                return;
+
+            }
+        }
+        protected void ddlTipoDocumentoBuscar_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void btnBuscarAsegurado_Click(object sender, EventArgs e)
+        {
+            BuscarAsegurado();
+
+        }
+
+
+        protected void btnNuevoAsegurado_Click(object sender, EventArgs e)
+        {
+            // Limpiar formulario para nuevo registro
+            LimpiarFormulario();
+            // pnlResultadoBusqueda.Visible = false;
+
+            // Opcional: Mostrar formulario extendido para nuevo asegurado
+            // mvFormulario.ActiveViewIndex = 1; // Ir a vista de registro
+        }
+
+        protected void btnContinuarConAsegurado_Click(object sender, EventArgs e)
+        {
+            // Continuar al siguiente paso (selección de producto)
+            mvFormulario.ActiveViewIndex = 1; // Ir a vista de productos
+
+            // Actualizar título del paso 2 si es necesario
+            //    tituloVentaNuevaRenovacion.InnerText = $"Nueva Venta - {Session["AseguradoNombre"]}";
+        }
+
+        protected void btnBuscarOtro_Click(object sender, EventArgs e)
+        {
+            LimpiarFormulario();
+            // pnlResultadoBusqueda.Visible = false;
+        }
+
+        private void LimpiarFormulario()
+        {
+            //ddlTipoDocumentoBuscar.SelectedIndex = 0;
+            //txtNumeroDocumentoBuscar.Text = "";
+            //txtComplementoBuscar.Text = "";
+            //ddlDepartamentoExpedicion.SelectedIndex = 0;
+            //divComplementoBuscar.Visible = false;
+            //pnlMensajeAsegurado.Visible = false;
+        }
+        protected void btnSiguienteBeneficiarios_Click(object sender, EventArgs e)
+        {
+            // Validar que si hay beneficiarios, la suma sea 100%
+            if (ListaBeneficiarios.Count > 0)
+            {
+                int totalPorcentaje = ListaBeneficiarios.Sum(b => b.PolBenBeneficioPorcentaje);
+                if (totalPorcentaje != 100)
+                {
+                    MostrarMensaje($"La suma de porcentajes debe ser 100%. Actual: {totalPorcentaje}%", "warning");
+                    return;
+                }
             }
 
-            var response = Obtener();
-            if (response.Exito)
-            {
-                spanPlaca.InnerHtml = txtItentificador.Text;
-                spanTipoUsoVenta.InnerHtml = ddlTipoUso.SelectedItem.ToString();
-                spanTipoVehiculoVenta.InnerHtml = ddlTipoVehiculo.SelectedItem.ToString();
-                spanDepartamentoVenta.InnerHtml = WebFormHelpers.CapitalizarPrimeraLetraDeCadaPalabra(ddlPlazaCirculacion.SelectedItem.ToString());
-                spanGestionVenta.InnerHtml = ddlGestion.SelectedItem.ToString();
-                spanPrimaVenta.InnerHtml = Prima.ToString();
-                imagenQr.Src = "data:image/png;base64," + response.oSDatos.CodigoQR;
-                hfCodigoUnico.Value = response.oSDatos.Secuencial.ToString();
-                mvFormulario.ActiveViewIndex = 3;
+            // Guardar beneficiarios y continuar
+            Session["Beneficiarios"] = ListaBeneficiarios;
+            mvFormulario.ActiveViewIndex = 6;
+        }
 
+        protected void btnAnteriorBeneficiarios_Click(object sender, EventArgs e)
+        {
+            mvFormulario.ActiveViewIndex = Convert.ToInt32(Session["PasoAnteriorBeneficiarios"]);
+        }
+
+        private void MostrarMensaje(string mensaje, string tipo)
+        {
+            //pnlMensajeAsegurado.Visible = true;
+            //lblMensajeAsegurado.Text = mensaje;
+
+            //switch (tipo)
+            //{
+            //    case "success":
+            //        pnlMensajeAsegurado.CssClass = "alert alert-success alert-dismissible fade show";
+            //        break;
+            //    case "warning":
+            //        pnlMensajeAsegurado.CssClass = "alert alert-warning alert-dismissible fade show";
+            //        break;
+            //    case "danger":
+            //        pnlMensajeAsegurado.CssClass = "alert alert-danger alert-dismissible fade show";
+            //        break;
+            //    default:
+            //        pnlMensajeAsegurado.CssClass = "alert alert-info alert-dismissible fade show";
+            //        break;
+            //}
+        }
+        protected void gvBeneficiarios_RowDeleting(object sender, GridViewDeleteEventArgs e)
+        {
+            int id = Convert.ToInt32(gvBeneficiarios.DataKeys[e.RowIndex].Value);
+            var lista = ListaBeneficiarios;
+            lista.RemoveAll(b => b.Id == id);
+            ListaBeneficiarios = lista;
+
+            CargarBeneficiarios();
+        }
+
+        //// Editar beneficiario
+        //protected void gvBeneficiarios_RowEditing(object sender, GridViewEditEventArgs e)
+        //{
+        //    int id = Convert.ToInt32(gvBeneficiarios.DataKeys[e.NewEditIndex].Value);
+        //    var beneficiario = ListaBeneficiarios.FirstOrDefault(b => b.Id == id);
+
+        //    if (beneficiario != null)
+        //    {
+        //        // Llenar modal con datos del beneficiario
+        //        //ddlTipoDocumentoBeneficiario.SelectedValue = beneficiario.TipoDocumento;
+        //        //txtNumeroDocumentoBeneficiario.Text = beneficiario.NumeroDocumento;
+        //        //txtComplementoBeneficiario.Text = beneficiario.Complemento;
+        //        txtNombreCompletoBeneficiario.Text = beneficiario.PolBenNombreCompleto;
+        //        ddlParentesco.SelectedValue = beneficiario.PolBenTParEmiBeneficiarioParentescoFk.ToString();
+        //        txtPorcentaje.Text = beneficiario.PolBenBeneficioPorcentaje.ToString();
+
+        //        // Mostrar complemento si es NIT
+        //        //if (beneficiario.TipoDocumento == "NIT")
+        //        //    divComplementoBeneficiario.Visible = true;
+
+        //        // Configurar modal para edición
+        //        lblModalTitulo.Text = "Editar Beneficiario";
+        //        hfEsEdicion.Value = "true";
+        //        hfBeneficiarioId.Value = beneficiario.Id.ToString();
+
+        //        ScriptManager.RegisterStartupScript(this, GetType(), "AbrirModal",
+        //            "$('#modalAgregarBeneficiario').modal('show');", true);
+        //    }
+        //}
+        protected void btnGuardarBeneficiario_Click(object sender, EventArgs e)
+        {
+            if (Page.IsValid)
+            {
+                try
+                {
+                    var beneficiario = new Lpolbenbeneficiario
+                    {
+                        //TipoDocumento = ddlTipoDocumentoBeneficiario.SelectedValue,
+                        //NumeroDocumento = txtNumeroDocumentoBeneficiario.Text.Trim(),
+                        //Complemento = txtComplementoBeneficiario.Text.Trim(),
+                        PolBenNombreCompleto = txtNombreCompletoBeneficiario.Text.Trim(),
+                        PolBenTParEmiBeneficiarioParentescoFk = int.Parse(ddlParentesco.SelectedValue),
+                        PolBenBeneficioPorcentaje = Convert.ToInt32(txtPorcentaje.Text)
+
+                    };
+
+                    // Verificar si es edición
+                    if (hfEsEdicion.Value == "true" && !string.IsNullOrEmpty(hfBeneficiarioId.Value))
+                    {
+                        // Actualizar beneficiario existente
+                        int id = Convert.ToInt32(hfBeneficiarioId.Value);
+                        var lista = ListaBeneficiarios;
+                        var index = lista.FindIndex(b => b.Id == id);
+                        if (index != -1)
+                        {
+                            beneficiario.Id = id;
+                            lista[index] = beneficiario;
+                            ListaBeneficiarios = lista;
+                        }
+                    }
+                    else
+                    {
+                        // Agregar nuevo beneficiario
+                        beneficiario.Id = ListaBeneficiarios.Count > 0 ?
+                            ListaBeneficiarios.Max(b => b.Id) + 1 : 1;
+
+                        var lista = ListaBeneficiarios;
+                        lista.Add(beneficiario);
+                        ListaBeneficiarios = lista;
+                    }
+
+                    // Cerrar modal y actualizar lista
+                    ScriptManager.RegisterStartupScript(this, GetType(), "CerrarModal",
+                        "$('#modalAgregarBeneficiario').modal('hide');", true);
+
+                    CargarBeneficiarios();
+                    LimpiarModal();
+                }
+                catch (Exception ex)
+                {
+                    MostrarMensaje($"Error al guardar beneficiario: {ex.Message}", "danger");
+                }
+            }
+        }
+        private void CargarBeneficiarios()
+        {
+            gvBeneficiarios.DataSource = ListaBeneficiarios;
+            gvBeneficiarios.DataBind();
+
+            gvBeneficiarios.Visible = ListaBeneficiarios.Any();
+            pnlListaVacia.Visible = !ListaBeneficiarios.Any();
+        }
+        private void LimpiarModal()
+        {
+            //ddlTipoDocumentoBeneficiario.SelectedIndex = 0;
+            //txtNumeroDocumentoBeneficiario.Text = "";
+            //txtComplementoBeneficiario.Text = "";
+            txtNombreCompletoBeneficiario.Text = "";
+            ddlParentesco.SelectedIndex = 0;
+            txtPorcentaje.Text = "";
+            // txtObservaciones.Text = "";
+            //    divComplementoBeneficiario.Visible = false;
+        }
+
+
+        protected void Button1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        //protected void mvFormulario_ActiveViewChanged(object sender, EventArgs e)
+        //{
+        //    if (mvFormulario.ActiveViewIndex == 1)
+        //    {
+        //        CargarDatosPaso2();
+        //    }
+        //    if (mvFormulario.ActiveViewIndex == 4)
+        //    {
+        //        CargarDatosPaso4();
+        //    }
+        //}
+
+        private void CargarDatosPaso2()
+        {
+            ucAsegurado.CargarDatos(DatosAsegurado);
+        }
+        private void CargarDatosPaso4()
+        {
+            ucTomador.CargarDatos(DatosTomador);
+        }
+
+
+        protected void btnAnterior3_Click(object sender, EventArgs e)
+        {
+            mvFormulario.ActiveViewIndex = 2;
+        }
+
+        protected void btnSiguiente3_Click(object sender, EventArgs e)
+        {
+            BuscarTomador();
+        }
+        protected void btnAnterior4_Click(object sender, EventArgs e)
+        {
+            mvFormulario.ActiveViewIndex = 3;
+        }
+
+        protected void btnSiguiente4_Click(object sender, EventArgs e)
+        {
+            var datosTomadorResponse = ucTomador.ObtenerDatosFormulario();
+            Emi01PolizaEmitirPDFRequest datos = new Emi01PolizaEmitirPDFRequest
+            {
+                PolMaeTParGenDepartamentoFk = datosTomadorResponse.PolMaeTParGenDepartamentoFk,
+                PolMaeTProductoPlanPrimaFk = 25,//SOATC
+                lPolBenBeneficiario = ListaBeneficiarios,
+                oEDatosAsegurado = datosTomadorResponse,
+                oEDatosTomador = datosTomadorResponse,
+                oETransaccionIdentificador = new Oetransaccionidentificador
+                {
+                    TraIdeLlaveA = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                    TraIdeLlaveB = _random.Next(100000, 999999).ToString()
+                }
+            };
+            var validarVendible = Emi11PolizaEfectivizarValidarVendible(datos);
+            if (validarVendible.Exito)
+            {
+                mvFormulario.ActiveViewIndex = 5;
+                Session["PasoAnteriorBeneficiarios"] = "4";
             }
             else
             {
                 WebFormHelpers.EjecutarNotificacion(
                     this,
                     "error",
-                    response?.Mensaje
+                    validarVendible.Mensaje
                 );
+
             }
-
-
         }
-        [WebMethod]
-        public static string JSConsultarPago(int codigoUnico, string ventaVendedor, string sucursal)
-        {
-            var parametros = new ParametrosConfiguracion();
-            Venta ventaInstance = new Venta();
-            var datos = new VenQrConsultarRequest
-            {
-                CodigoUnico = codigoUnico,
-                TipoTramite = parametros.TipoTramite,
 
+        protected void btnAnteriorFacturacion_Click(object sender, EventArgs e)
+        {
+            mvFormulario.ActiveViewIndex = 5;
+        }
+
+        protected void btnSiguienteFacturacion_Click(object sender, EventArgs e)
+        {
+            bool tomadorDiferente = rbTomadorDiferenteSi.Checked;
+            var datosAseguradoResponse = ucAsegurado.ObtenerDatosFormulario();
+            var datosTomadorResponse = datosAseguradoResponse;
+            if (tomadorDiferente)
+            {
+                datosTomadorResponse = ucTomador.ObtenerDatosFormulario();
+            }
+            Emi01PolizaEmitirPDFRequest datos = new Emi01PolizaEmitirPDFRequest
+            {
+                PolMaeTParGenDepartamentoFk = datosAseguradoResponse.PolMaeTParGenDepartamentoFk,
+                PolMaeTProductoPlanPrimaFk = 25,//SOATC
+                lPolBenBeneficiario = ListaBeneficiarios,
+                oEDatosAsegurado = datosAseguradoResponse,
+                oEDatosTomador = datosTomadorResponse,
+                oETransaccionIdentificador = new Oetransaccionidentificador
+                {
+                    TraIdeLlaveA = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                    TraIdeLlaveB = _random.Next(100000, 999999).ToString()
+                }
             };
-
-            var response = WebFormHelpers.ConsumirMetodoApi<VenQrConsultarResponse>(
-                "CoreSOAT",
-                "Ventas",
-                "VenQrConsultar",
-                datos
-            );
-
-            return JsonConvert.SerializeObject(response);
-
-        }
-        [WebMethod]
-        public static string JSConsultarEfectivizacion(int secuencial, string ventaVendedor, string sucursal)
-        {
-
-            Venta ventaInstance = new Venta();
-
-            var datos = new VenQrConsultarEfectivizacionRequest
+            var respuesta = Emi01PolizaEmitirPDF(datos);
+            if (respuesta.Exito)
             {
-                TQrSolicitudFk = secuencial
+                mvFormulario.ActiveViewIndex = 7;
+                var archivoAdjunto = respuesta.oSDatos.oArchivosAdjuntos;
+                if (archivoAdjunto == null)
+                    return;
+                string base64 = archivoAdjunto.ArchivoAdjunto;
+                pdfViewer.Attributes["src"] = "data:application/pdf;base64," + base64;
 
-            };
-
-            var response = WebFormHelpers.ConsumirMetodoApi<VenQrConsultarEfectivizacionResponse>(
-                "CoreSOAT",
-                "Ventas",
-                "VenQrConsultarEfectivizacion",
-                datos
-            );
-
-            return JsonConvert.SerializeObject(response);
-        }
-
-        protected void btnAnularQr_Click(object sender, EventArgs e)
-        {
-            var response = Anular();
-            if (response.Exito)
-            {
                 WebFormHelpers.EjecutarNotificacion(
-                   this,
-                   "success",
-                   response?.Mensaje
-               );
-                mvFormulario.ActiveViewIndex = 1;
-
+                                    this,
+                                    "success",
+                                   respuesta.Mensaje
+                                );
             }
             else
             {
                 WebFormHelpers.EjecutarNotificacion(
                     this,
                     "error",
-                    response?.Mensaje
+                    respuesta.Mensaje
                 );
             }
         }
 
-        protected void btnInicio_Click(object sender, EventArgs e)
+        private ServiceApiResponse<Object> Emi11PolizaEfectivizarValidarVendible(Emi01PolizaEmitirPDFRequest emi01PolizaEmitirPDFRequest)
         {
-            Response.Redirect("Venta", true);
+            var response = WebFormHelpers.ConsumirMetodoApi<Object>(
+                "CoreTecnico",
+                "Emision",
+                "Emi01PolizaEmitirPDF",
+                emi01PolizaEmitirPDFRequest
+            );
+            return response;
+        }
+
+        private ServiceApiResponse<Emi01PolizaEmitirPDFResponse> Emi01PolizaEmitirPDF(Emi01PolizaEmitirPDFRequest emi01PolizaEmitirPDFRequest)
+        {
+            var response = WebFormHelpers.ConsumirMetodoApi<Emi01PolizaEmitirPDFResponse>(
+                "CoreTecnico",
+                "Emision",
+                "Emi11PolizaEfectivizarValidarVendible",
+                emi01PolizaEmitirPDFRequest
+            );
+            return response;
+        }
+
+        protected void btnCerrarFormularioVenta_Click(object sender, EventArgs e)
+        {
+
+            ViewState.Clear();
+
+            Session.Remove("Beneficiarios");
+            Session.Remove("MultiplesAsegurados");
+            Session.Remove("MultiplesTomadores");
+            Session.Remove("PasoAnteriorBeneficiarios");
+
+            TiposDocumentos = new List<ParObtenerTipoDocIdentidadResponse>();
+            DatosAsegurado = new CliPN01ObtenerDatosResponse();
+            DatosTomador = new CliPN01ObtenerDatosResponse();
+            ListaBeneficiarios = new List<Lpolbenbeneficiario>();
+
+            mvFormulario.ActiveViewIndex = 0;
         }
     }
+
 }

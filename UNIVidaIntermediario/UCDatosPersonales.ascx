@@ -21,35 +21,75 @@
     <div class="mb-4">
         <div class="d-flex align-items-center justify-content-center gap-4 text-center">
             <div>
-                <div class="text-muted small">DOCUMENTO</div>
+                <div class="text-muted small">DOCUMENTO DE IDENTIDAD</div>
                 <div class="h5 mb-0 fw-bold">
                     <span class="text-primary">
-                        <asp:Literal ID="Literal1" runat="server">CI</asp:Literal>
+                        <asp:Literal ID="ltlTipoDocumento" runat="server" />
                     </span>
-                    <span class="mx-1">-</span>
+                    <span class="mx-1" id="spanGuion" runat="server">-</span>
                     <span>
-                        <asp:Literal ID="Literal2" runat="server">6732326</asp:Literal>
+                        <asp:Literal ID="ltlNumeroDocumento" runat="server" />
                     </span>
                     <span id="spanComplemento" runat="server" class="text-info">
-                        <asp:Literal ID="Literal3" runat="server">A1</asp:Literal>
+                        <asp:Literal ID="ltlComplementoDocumento" runat="server" />
                     </span>
                 </div>
             </div>
 
-            <div class="vr" style="height: 40px;"></div>
+            <div class="vr" style="height: 40px;" runat="server" id="divSeparador"></div>
 
-            <div>
+            <div id="divDepartamento" runat="server">
                 <div class="text-muted small">DEPARTAMENTO</div>
                 <div class="h5 mb-0 fw-bold text-success">
-                    <asp:Literal ID="Literal4" runat="server">La Paz</asp:Literal>
+                    <asp:Literal ID="ltlDepartamentoDocumento" runat="server" />
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Separador visual -->
-    <hr class="my-4" />
+ 
+     <!-- Fila 0: Si no existe el asegurado -->
+    <div class="row" runat="server" id="divDatosDocumentoIdentidad">
+        <asp:HiddenField id="hfNumeroDocumento" runat="server"/>
+        <!-- Tipo de Documento -->
+        <div class="col-md-4 mb-3" id="rowTipoDocumento" runat="server">
+            <div style="position: relative;">
+                <asp:DropDownList ID="ddlTipoDocumento" runat="server" CssClass="form-control form-control-lg" ClientIDMode="Static">
+                    <asp:ListItem Value="" Text="Seleccione tipo de documento"></asp:ListItem>
+            
+                </asp:DropDownList>
+                <label class="form-label" for="<%= ddlTipoDocumento.ClientID %>" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
+                    Tipo de Documento <span class="text-danger">*</span>
+                </label>
+            </div>
+        </div>
 
+        <!-- Complemento Documento -->
+        <div class="col-md-4 mb-3" id="rowComplementoDocumento" runat="server" >
+            <div data-mdb-input-init class="form-outline ">
+                <asp:TextBox ID="txtComplementoDocumento" runat="server"
+                    CssClass="form-control form-control-lg text-uppercase"
+                    placeholder=" "
+                    MaxLength="10"
+                    ClientIDMode="Static" />
+                <label class="form-label" for="<%= txtComplementoDocumento.ClientID %>">Complemento Documento</label>
+            </div>
+        </div>
+
+        <!-- Departamento Documento -->
+        <div class="col-md-4 mb-3" id="rowDeptoDocumento" runat="server" >
+            <div style="position: relative;">
+                <asp:DropDownList ID="ddlDeptoDocumento" runat="server" CssClass="form-control form-control-lg" ClientIDMode="Static">                                        
+                </asp:DropDownList>
+                <label class="form-label" for="<%= ddlDeptoDocumento.ClientID %>" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
+                    Departamento Documento <span class="text-danger">*</span>
+                </label>
+            </div>
+        </div>
+
+    </div>
+       <!-- Separador visual -->
+   <hr class="my-4" />
     <!-- Fila 1: Apellido Paterno -->
     <div class="row">
         <div class="col-md-6 mb-3">
@@ -214,24 +254,14 @@
             <div class="mb-3" style="position: relative;">
                 <asp:DropDownList ID="ddlDeptoResidencia" runat="server"
                     CssClass="form-control form-control-lg"
-                    ClientIDMode="Static">
-                    <asp:ListItem Value="" Text="Seleccione departamento"></asp:ListItem>
-                    <asp:ListItem Value="LP" Text="La Paz"></asp:ListItem>
-                    <asp:ListItem Value="CB" Text="Cochabamba"></asp:ListItem>
-                    <asp:ListItem Value="SC" Text="Santa Cruz"></asp:ListItem>
-                    <asp:ListItem Value="OR" Text="Oruro"></asp:ListItem>
-                    <asp:ListItem Value="PT" Text="Potosí"></asp:ListItem>
-                    <asp:ListItem Value="TJ" Text="Tarija"></asp:ListItem>
-                    <asp:ListItem Value="CH" Text="Chuquisaca"></asp:ListItem>
-                    <asp:ListItem Value="BE" Text="Beni"></asp:ListItem>
-                    <asp:ListItem Value="PD" Text="Pando"></asp:ListItem>
+                    ClientIDMode="Static">                               
                 </asp:DropDownList>
                 <label class="form-label" for="<%= ddlDeptoResidencia.ClientID %>" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
                     Departamento de Residencia <span class="text-danger">*</span>
                 </label>
                 <asp:RequiredFieldValidator ID="rfvDeptoResidencia" runat="server"
                     ControlToValidate="ddlDeptoResidencia"
-                    InitialValue=""
+                    InitialValue="0"
                     ErrorMessage="Departamento de residencia requerido."
                     CssClass="small text-danger"
                     Display="Dynamic"
@@ -286,22 +316,19 @@
                 <asp:DropDownList ID="ddlSexo" runat="server"
                     CssClass="form-control form-control-lg"
                     ClientIDMode="Static">
-                    <asp:ListItem Value="" Text="Seleccione sexo"></asp:ListItem>
-                    <asp:ListItem Value="M" Text="Masculino"></asp:ListItem>
-                    <asp:ListItem Value="F" Text="Femenino"></asp:ListItem>
-                    <asp:ListItem Value="O" Text="Otro"></asp:ListItem>
+                         
                 </asp:DropDownList>
                 <label class="form-label" for="<%= ddlSexo.ClientID %>" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
                     Sexo <span class="text-danger">*</span>
                 </label>
                 <asp:RequiredFieldValidator ID="rfvSexo" runat="server"
                     ControlToValidate="ddlSexo"
-                    InitialValue=""
+                    InitialValue="0"
                     ErrorMessage="Sexo requerido."
                     CssClass="small text-danger"
                     Display="Dynamic"
                     ValidationGroup="DatosPersonales"
-                    Enabled="false" />
+                    />
             </div>
         </div>
 
@@ -311,12 +338,7 @@
                 <asp:DropDownList ID="ddlEstadoCivil" runat="server"
                     CssClass="form-control form-control-lg"
                     ClientIDMode="Static">
-                    <asp:ListItem Value="" Text="Seleccione estado civil"></asp:ListItem>
-                    <asp:ListItem Value="S" Text="Soltero(a)"></asp:ListItem>
-                    <asp:ListItem Value="C" Text="Casado(a)"></asp:ListItem>
-                    <asp:ListItem Value="D" Text="Divorciado(a)"></asp:ListItem>
-                    <asp:ListItem Value="V" Text="Viudo(a)"></asp:ListItem>
-                    <asp:ListItem Value="U" Text="Unión Libre"></asp:ListItem>
+         
                 </asp:DropDownList>
                 <label class="form-label" for="<%= ddlEstadoCivil.ClientID %>" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
                     Estado Civil <span class="text-danger">*</span>
@@ -340,10 +362,7 @@
             <div class="" style="position: relative;">
                 <asp:DropDownList ID="ddlNacionalidad" runat="server"
                     CssClass="form-control form-control-lg"
-                    ClientIDMode="Static">
-                    <asp:ListItem Value="" Text="Seleccione nacionalidad"></asp:ListItem>
-                    <asp:ListItem Value="BOL" Text="Boliviana"></asp:ListItem>
-                    <asp:ListItem Value="EXT" Text="Extranjera"></asp:ListItem>
+                    ClientIDMode="Static">                   
                 </asp:DropDownList>
                 <label class="form-label" for="<%= ddlNacionalidad.ClientID %>" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
                     Nacionalidad <span class="text-danger">*</span>

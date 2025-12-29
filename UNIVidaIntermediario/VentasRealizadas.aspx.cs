@@ -5,6 +5,7 @@ using System.Web.Security;
 using System.Web.UI.WebControls;
 using UNIVidaIntermediarioService.Models.Soat;
 using UNIVidaIntermediario.Utils;
+using UNIVidaSoatService.Models.Soatc;
 
 namespace UNIVidaIntermediario
 {
@@ -58,27 +59,26 @@ namespace UNIVidaIntermediario
                 "yyyy-MM-dd",
                 CultureInfo.InvariantCulture
             );
-            var datos = new Ven04ListarRequest
+            var datos = new 
             {
-                SoatVentaFecha = fechaVenta,
-                VehiPlaca = "",
-                SoatTParGestionFk = -1
+                Fecha = fechaVenta,
+             
             };
 
-            var response = WebFormHelpers.ConsumirMetodoApi<Ven04ListarResponse>(
-                "CoreSOAT",
-                "Ventas",
-                "Ven04Listar",
+            var response = WebFormHelpers.ConsumirMetodoApi<Emi09PolizaListarResponse>(
+                "CoreTecnico",
+                "Emision",
+                "Emi09PolizaListar",
                 datos
             );
             if (response != null && response.Exito && response.oSDatos != null)
             {
-                gvSoatVendidos.DataSource = response.oSDatos.lSoatDatosVenta;
-                gvSoatVendidos.DataBind();                
+                gvSoatcVendidos.DataSource = response.oSDatos;
+                gvSoatcVendidos.DataBind();                
             }
             else
             {
-                gvSoatVendidos.DataSource = null;
+                gvSoatcVendidos.DataSource = null;
                             
                 WebFormHelpers.EjecutarNotificacion(
                     this,
@@ -86,11 +86,11 @@ namespace UNIVidaIntermediario
                     response?.Mensaje
                 );
             }
-            ViewState["MensajeGvSoatVendidos"] = response.Mensaje;
-            gvSoatVendidos.DataBind();
+            ViewState["MensajeGvSoatcVendidos"] = response.Mensaje;
+            gvSoatcVendidos.DataBind();
         }
 
-        protected void gvSoatVendidos_RowCommand(object sender, GridViewCommandEventArgs e)
+        protected void gvSoatcVendidos_RowCommand(object sender, GridViewCommandEventArgs e)
         {
 
             if (e.CommandName == "VerComprobante")
@@ -107,22 +107,22 @@ namespace UNIVidaIntermediario
 
 
         }
-        protected void gvSoatVendidos_RowDataBound(object sender, GridViewRowEventArgs e)
+        protected void gvSoatcVendidos_RowDataBound(object sender, GridViewRowEventArgs e)
         {
             if (e.Row.RowType == DataControlRowType.EmptyDataRow)
             {
                 Label lblMensaje = e.Row.FindControl("lblMensaje") as Label;
                 if (lblMensaje != null)
                 {
-                    string mensaje = ViewState["MensajeGvSoatVendidos"] as string;
+                    string mensaje = ViewState["MensajeGvSoatcVendidos"] as string;
                     lblMensaje.Text = mensaje;
                 }
             }
            
         }
-        protected void gvSoatVendidos_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        protected void gvSoatcVendidos_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
-            gvSoatVendidos.PageIndex = e.NewPageIndex;
+            gvSoatcVendidos.PageIndex = e.NewPageIndex;
             this.CargarGrilla();
         }
 

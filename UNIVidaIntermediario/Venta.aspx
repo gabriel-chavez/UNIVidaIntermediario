@@ -1,168 +1,806 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Venta.aspx.cs" Inherits="UNIVidaIntermediario.Venta" %>
 
-<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="ajaxToolkit" %>
+<%@ Register Src="~/UCDatosPersonales.ascx" TagPrefix="uc" TagName="DatosPersonales" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <style>
-        #MainContent_spanIdentificador {
-            color: #c20538
-        }
-    </style>
-    <asp:HiddenField ID="hfCodigoUnico" runat="server" />
-    <asp:HiddenField ID="hfVentaVendedor" runat="server" Value="prueba" />
-    <asp:HiddenField ID="hfSucursal" runat="server" Value="prueba" />
-    <asp:HiddenField ID="hfSecuencialPago" runat="server" />
-    <asp:HiddenField ID="hfTVehiSoatPropFk" runat="server" />
-
     <asp:MultiView ID="mvFormulario" runat="server" ActiveViewIndex="0">
-        <!-- Paso 1 -->
-        <asp:View ID="vwPaso1" runat="server">
 
+        <!-- Paso 1 - Buscar Asegurado por Documento -->
+        <asp:View ID="vwPaso1" runat="server">
+            <asp:Panel ID="panel4" runat="server" DefaultButton="btnBuscarDocumento">
+                <section class="mb-4">
+                    <div class="card">
+                        <div class="card-header text-center py-3">
+                            <h5 class="mb-0 text-center">
+                                <strong>Buscar Asegurado</strong>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+
+                            <!-- Instrucción -->
+                            <div class="alert alert-light border mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-info-circle text-primary me-3 fa-lg"></i>
+                                    <div>
+                                        <h6 class="mb-1 fw-bold">Ingrese el documento del asegurado</h6>
+                                        <p class="mb-0 small text-muted">Complete el documento de identidad para buscar o registrar al asegurado</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Solo Número de Documento -->
+                            <div class="row justify-content-center">
+                                <div class="col-12 col-md-8 col-lg-6">
+                                    <div class="mb-4 text-center">
+                                        <label class="form-label fw-bold mb-3">Documento de Identidad</label>
+                                        <div class="input-group input-group-lg">
+                                            <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                            <asp:TextBox ID="txtDocumentoBusqueda" runat="server"
+                                                CssClass="form-control text-center"
+                                                ClientIDMode="Static"
+                                                placeholder="Ingrese número de documento"
+                                                MaxLength="15">
+                                            </asp:TextBox>
+                                        </div>
+
+                                        <asp:RequiredFieldValidator ID="rfvDocumentoBusqueda" runat="server"
+                                            ControlToValidate="txtDocumentoBusqueda"
+                                            ErrorMessage="Ingrese el número de documento"
+                                            CssClass="small text-danger d-block mt-2"
+                                            Display="Dynamic"
+                                            InitialValue=""
+                                            ValidationGroup="BuscarAsegurado" />
+                                        <asp:RegularExpressionValidator ID="revDocumentoBusqueda" runat="server"
+                                            ControlToValidate="txtDocumentoBusqueda"
+                                            ValidationExpression="^\d+$"
+                                            ErrorMessage="Solo se permiten números"
+                                            CssClass="small text-danger d-block mt-1"
+                                            Display="Dynamic"
+                                            InitialValue=""
+                                            ValidationGroup="BuscarAsegurado" />
+
+                                        <ajaxToolkit:FilteredTextBoxExtender
+                                            ID="ftbeDocumentoBusqueda"
+                                            runat="server"
+                                            TargetControlID="txtDocumentoBusqueda"
+                                            FilterType="Numbers" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botón de búsqueda -->
+                            <div class="text-center mt-4">
+                                <asp:Button ID="btnBuscarDocumento" runat="server"
+                                    Text="Buscar Asegurado"
+                                    CssClass="btn btn-primary btn-lg px-5"
+                                    OnClick="btnBuscarAsegurado_Click"
+                                    ValidationGroup="BuscarAsegurado" />
+                            </div>
+
+                            <!-- Mensajes -->
+                            <asp:Panel ID="pnlMensajeBusqueda" runat="server" Visible="false" CssClass="mt-4">
+                                <div class="alert alert-dismissible fade show" role="alert">
+                                    <asp:Label ID="lblMensajeBusqueda" runat="server"></asp:Label>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            </asp:Panel>
+
+                            <div id="divGridAsegurados" runat="server" visible="false">
+                                <div class="alert alert-warning mb-3 mt-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-exclamation-triangle me-3 fa-lg"></i>
+                                        <div>
+                                            <h6 class="mb-1 fw-bold">Se encontraron múltiples clientes con el mismo documento</h6>
+                                            <p class="mb-0 small">
+                                                Por favor, seleccione el cliente correcto revisando los detalles adicionales.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <asp:GridView ID="gvClientes"
+                                    runat="server"
+                                    AutoGenerateColumns="False"
+                                    AllowPaging="true"
+                                    PageSize="10"
+                                    CssClass="table table-striped table-hover"
+                                    OnRowCommand="gvClientes_RowCommand">
+
+                                    <EmptyDataTemplate>
+                                        <div class="text-center py-5 text-muted">
+                                            No se encontraron clientes
+                                        </div>
+                                    </EmptyDataTemplate>
+
+                                    <Columns>
+
+                                        <asp:TemplateField HeaderText="Nombre Completo">
+                                            <ItemTemplate>
+                                                <%# Eval("PerApellidoPaterno") + " " + 
+            Eval("PerApellidoMaterno") + " " + 
+            Eval("PerApellidoCasada") + " " + 
+            Eval("PerNombrePrimero") + " " + 
+            Eval("PerNombreSegundo") %>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+
+
+                                        <asp:BoundField DataField="PerTParCliDocumentoIdentidadTipoDescripcion"
+                                            HeaderText="Tipo Documento" />
+
+
+                                        <asp:BoundField DataField="PerDocumentoIdentidadNumero"
+                                            HeaderText="Número Documento"
+                                            ItemStyle-HorizontalAlign="Center" />
+
+
+                                        <asp:BoundField DataField="PerDocumentoIdentidadExtension"
+                                            HeaderText="Extensión"
+                                            ItemStyle-HorizontalAlign="Center" />
+
+
+                                        <asp:BoundField DataField="PerTParGenDepartamentoDescripcionDocumentoIdentidad"
+                                            HeaderText="Departamento" />
+
+
+                                        <asp:BoundField DataField="PerFechaAdicionFormato" HeaderText="Fecha de Registro" />
+
+
+                                        <asp:TemplateField HeaderText="Acción" ItemStyle-HorizontalAlign="Center" HeaderStyle-Width="120px">
+                                            <ItemTemplate>
+                                                <asp:Button ID="btnSeleccionar" runat="server"
+                                                    Text="Seleccionar"
+                                                    CssClass="btn btn-primary btn-sm"
+                                                    CommandName="SeleccionarCliente"
+                                                    CommandArgument='<%#Eval("PerSecuencial")%>' />
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                    </Columns>
+                                </asp:GridView>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </asp:Panel>
+
+        </asp:View>
+        <!-- Paso 2: Datos del Asegurado -->
+        <asp:View ID="vwPaso2" runat="server">
+            <asp:Panel ID="panel2" runat="server" DefaultButton="btnSiguiente1">
+                <section class="mb-4">
+                    <div class="card">
+                        <div class="card-header text-center py-3">
+                            <h5 class="mb-0 text-center">
+                                <strong>Datos Asegurado</strong>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+
+                            <!-- User Control para Asegurado -->
+                            <uc:DatosPersonales ID="ucAsegurado" runat="server"
+                                TipoPersona="ASEGURADO"
+                                ValidationGroup="Paso2" />
+
+                            <!-- Botones -->
+                            <div class="row mt-4">
+                                <div class="col-6">
+                                    <asp:Button ID="btnAnterior1" runat="server" Text="Atrás"
+                                        CssClass="btn btn-outline-primary w-100"
+                                        OnClick="btnAnterior1_Click" />
+                                </div>
+                                <div class="col-6">
+                                    <asp:Button ID="btnSiguiente1" runat="server" Text="Siguiente"
+                                        CssClass="btn btn-primary w-100"
+                                        OnClick="btnSiguiente1_Click"
+                                        ValidationGroup="Paso2" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+            </asp:Panel>
+
+        </asp:View>
+        <!-- Paso 3 - ¿Tomador diferente del asegurado? -->
+        <asp:View ID="vwPaso3" runat="server">
             <section class="mb-4">
                 <div class="card">
                     <div class="card-header text-center py-3">
                         <h5 class="mb-0 text-center">
-                            <strong>Venta nueva o renovación</strong>
+                            <strong>Consulta</strong>
                         </h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body text-center">
 
-
-
-                        <div class="mb-4" style="position: relative;">
-                            <asp:DropDownList ID="ddlTipoIdentificacion" runat="server" CssClass="form-control form-control-lg" ClientIDMode="Static">
-                            </asp:DropDownList>
-                            <label class="form-label" for="ddlTipoIdentificacion" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
-                                Tipo de Identificación
-                            </label>
+                        <!-- Pregunta -->
+                        <div class="mb-5">
+                            <h4 class="text-dark mb-3">
+                                <i class="fas fa-question-circle text-primary me-2"></i>
+                                ¿El tomador es diferente del asegurado?
+                            </h4>
+                            <p class="text-muted">Seleccione una opción para continuar</p>
                         </div>
-                        <div class="mb-4" style="position: relative;" id="divGestion" runat="server">
-                            <asp:DropDownList ID="ddlGestion" runat="server" CssClass="form-control form-control-lg" ClientIDMode="Static">
-                            </asp:DropDownList>
-                            <label class="form-label" for="ddlGestion" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
-                                Gestión soat
-                            </label>
-                        </div>
-                        <div class="row mb-4">
-                            <div class="col">
 
-                                <div class="input-group input-group-lg">
-                                    <span class="input-group-text fs-4"><i class="fas fa-car"></i></span>
-                                    <asp:TextBox ID="txtItentificador" MaxLength="20" runat="server" CssClass="form-control text-uppercase text-center fs-4" ClientIDMode="Static" ValidationGroup="Paso1" CausesValidation="true" />
-                                    <ajaxToolkit:FilteredTextBoxExtender
-                                        ID="ftbeCleanText"
-                                        runat="server"
-                                        TargetControlID="txtItentificador"
-                                        FilterType="Custom, Numbers, LowercaseLetters, UppercaseLetters"
-                                        ValidChars=" -._@<>+=() "
-                                        FilterMode="ValidChars" />
+                        <!-- Opciones de selección -->
+                        <div class="row justify-content-center mb-5">
+                            <div class="col-12 col-md-10 col-lg-8">
+
+                                <!-- Opción Sí -->
+                                <div class="form-check card-option mb-4">
+                                    <asp:RadioButton ID="rbTomadorDiferenteSi" runat="server"
+                                        GroupName="TomadorDiferente"
+                                        CssClass="form-check-input d-none"
+                                        ClientIDMode="Static" />
+                                    <label class="form-check-label card h-100 border-3" for="rbTomadorDiferenteSi">
+                                        <div class="card-body p-4 text-center">
+                                            <div class="mb-3">
+                                                <div class="option-icon mx-auto mb-3">
+                                                    <i class="fas fa-user-friends fa-3x text-warning"></i>
+                                                </div>
+                                                <h5 class="card-title fw-bold text-dark">Sí</h5>
+                                                <p class="card-text text-muted">
+                                                    El tomador es una persona diferente al asegurado
+                                                </p>
+                                            </div>
+
+                                        </div>
+                                    </label>
                                 </div>
-                                <asp:RequiredFieldValidator ID="rfvFulArchivoReversion" runat="server" ErrorMessage="Campo obligatorio" ControlToValidate="txtItentificador" class="small text-danger" Display="Dynamic" ValidationGroup="Paso1"></asp:RequiredFieldValidator>
+
+                                <!-- Opción No -->
+                                <div class="form-check card-option">
+                                    <asp:RadioButton ID="rbTomadorDiferenteNo" runat="server"
+                                        GroupName="TomadorDiferente"
+                                        CssClass="form-check-input d-none"
+                                        ClientIDMode="Static" />
+                                    <label class="form-check-label card h-100 border-3" for="rbTomadorDiferenteNo">
+                                        <div class="card-body p-4 text-center">
+                                            <div class="mb-3">
+                                                <div class="option-icon mx-auto mb-3">
+                                                    <i class="fas fa-user fa-3x text-success"></i>
+                                                </div>
+                                                <h5 class="card-title fw-bold text-dark">No</h5>
+                                                <p class="card-text text-muted">
+                                                    El tomador es la misma persona que el asegurado
+                                                </p>
+                                            </div>
+
+                                        </div>
+                                    </label>
+                                </div>
 
                             </div>
                         </div>
-                        <%-- <div class="alert alert-danger text-center animate__animated animate__headShake" role="alert" id="divMensaje" runat="server" visible="false">
-                        </div>--%>
-                        <div class="text-center py-5" id="divMensaje" runat="server" visible="false">
-                            <div>
-                                <lord-icon
-                                    src="https://cdn.lordicon.com/lltgvngb.json"
-                                    trigger="loop"
-                                    delay="3000"
-                                    colors="primary:#c4c4c4"
-                                    style="width: 80px; height: 80px; display: block; margin: 0 auto;">
-                                </lord-icon>
+
+                        <!-- Botones de navegación -->
+                        <div class="row mt-5">
+                            <div class="col-6">
+                                <asp:Button ID="btnAnterior2" runat="server"
+                                    Text="Atrás"
+                                    CssClass="btn btn-outline-primary w-100"
+                                    OnClick="btnAnterior2_Click"
+                                    CausesValidation="false" />
                             </div>
-
-                            <asp:Label ID="lblMensaje" runat="server" CssClass="h5 mt-3 text-muted"></asp:Label>
-
-                            <%--      <h5 class="mt-3 text-muted" id="gvSoatVendidosMensaje" runat="server">No se encontraron ventas</h5>--%>
-                        </div>
-
-
-                        <div class="text-center mt-4">
-                            <asp:LinkButton ID="btnSiguiente1" runat="server" CssClass="btn btn-primary d-flex align-items-center justify-content-center gap-2"
-                                OnClick="btnSiguiente1_Click"
-                                ValidationGroup="Paso1"
-                                CausesValidation="true">
-    <lord-icon src="https://cdn.lordicon.com/hoetzosy.json" trigger="hover" colors="primary:#ffffff" style="width:20px; height:20px;">
-    </lord-icon>
-    Buscar
-                            </asp:LinkButton>
-
+                            <div class="col-6">
+                                <asp:Button ID="btnSiguienteTomador" runat="server"
+                                    Text="Siguiente"
+                                    CssClass="btn btn-primary w-100"
+                                    OnClick="btnSiguiente2_Click"
+                                    Enabled="false"
+                                    ClientIDMode="Static" />
+                            </div>
                         </div>
 
                     </div>
                 </div>
             </section>
-
-
         </asp:View>
-
-        <!-- Paso 2 -->
-        <asp:View ID="vwPaso2" runat="server">
-
+        <!-- Paso 4 - Buscar Tomador por Documento -->
+        <asp:View ID="vwPaso4" runat="server">
             <section class="mb-4">
                 <div class="card">
                     <div class="card-header text-center py-3">
                         <h5 class="mb-0 text-center">
-                            <strong id="tituloVentaNuevaRenovacion" runat="server"></strong>
+                            <strong>Buscar Tomador</strong>
                         </h5>
                     </div>
                     <div class="card-body">
 
-                        <!-- Tipo de vehículo -->
-                        <div class="mb-4" style="position: relative;">
-                            <asp:DropDownList ID="ddlTipoVehiculo" runat="server" CssClass="form-control form-control-lg" ClientIDMode="Static">
-                            </asp:DropDownList>
-                            <label class="form-label" for="ddlTipoVehiculo" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
-                                Tipo de Vehículo
-                            </label>
-                            <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" InitialValue="0" ErrorMessage="Seleccione el tipo de vehículo" ControlToValidate="ddlTipoVehiculo" class="small text-danger" Display="Dynamic" ValidationGroup="Paso2"></asp:RequiredFieldValidator>
-
+                        <!-- Instrucción -->
+                        <div class="alert alert-light border mb-4">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-info-circle text-primary me-3 fa-lg"></i>
+                                <div>
+                                    <h6 class="mb-1 fw-bold">Ingrese el documento del tomador</h6>
+                                    <p class="mb-0 small text-muted">Complete el documento de identidad para buscar o registrar al tomador</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Plaza de circulación -->
-                        <div class="mb-4" style="position: relative;">
-                            <asp:DropDownList ID="ddlPlazaCirculacion" runat="server" CssClass="form-control form-control-lg" ClientIDMode="Static">
-                            </asp:DropDownList>
-                            <label class="form-label" for="ddlPlazaCirculacion" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
-                                Plaza de Circulación
-                            </label>
-                            <asp:RequiredFieldValidator ID="RequiredFieldValidator2" runat="server" InitialValue="0" ErrorMessage="Seleccione la plaza de circulación" ControlToValidate="ddlPlazaCirculacion" class="small text-danger" Display="Dynamic" ValidationGroup="Paso2"></asp:RequiredFieldValidator>
+                        <!-- Solo Número de Documento -->
+                        <div class="row justify-content-center">
+                            <div class="col-12 col-md-8 col-lg-6">
+                                <div class="mb-4 text-center">
+                                    <label class="form-label fw-bold mb-3">Documento de Identidad</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                        <asp:TextBox ID="txtDocumentoBusquedaTomador" runat="server"
+                                            CssClass="form-control text-center"
+                                            ClientIDMode="Static"
+                                            placeholder="Ingrese número de documento"
+                                            MaxLength="15">
+                                        </asp:TextBox>
+                                    </div>
 
+                                    <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server"
+                                        ControlToValidate="txtDocumentoBusquedaTomador"
+                                        ErrorMessage="Ingrese el número de documento"
+                                        CssClass="small text-danger d-block mt-2"
+                                        Display="Dynamic"
+                                        InitialValue=""
+                                        ValidationGroup="BuscarTomador" />
+                                    <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server"
+                                        ControlToValidate="txtDocumentoBusquedaTomador"
+                                        ValidationExpression="^\d+$"
+                                        ErrorMessage="Solo se permiten números"
+                                        CssClass="small text-danger d-block mt-1"
+                                        Display="Dynamic"
+                                        InitialValue=""
+                                        ValidationGroup="BuscarTomador" />
+
+                                    <ajaxToolkit:FilteredTextBoxExtender
+                                        ID="FilteredTextBoxExtender5"
+                                        runat="server"
+                                        TargetControlID="txtDocumentoBusquedaTomador"
+                                        FilterType="Numbers" />
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Tipo de uso -->
-                        <div class="mb-4" style="position: relative;">
-                            <asp:DropDownList ID="ddlTipoUso" runat="server" CssClass="form-control form-control-lg" ClientIDMode="Static">
-                            </asp:DropDownList>
-                            <label class="form-label" for="ddlTipoUso" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
-                                Tipo de Uso
-                            </label>
-                            <asp:RequiredFieldValidator ID="RequiredFieldValidator3" runat="server" InitialValue="0" ErrorMessage="Seleccione el tipo de uso" ControlToValidate="ddlTipoUso" class="small text-danger" Display="Dynamic" ValidationGroup="Paso2"></asp:RequiredFieldValidator>
+                        <!-- Botón de búsqueda -->
+                        <div class="row mt-5">
+                            <!-- Botones de navegación -->
+
+
+                            <div class="col-6">
+                                <asp:Button ID="btnAnterior3" runat="server"
+                                    Text="Anterior"
+                                    CssClass="btn btn-outline-primary w-100"
+                                    OnClick="btnAnterior3_Click" />
+                            </div>
+                            <div class="col-6">
+                                <asp:Button ID="btnSiguiente3" runat="server"
+                                    Text="Siguiente"
+                                    CssClass="btn btn-primary w-100"
+                                    OnClick="btnSiguiente3_Click"
+                                    CausesValidation="false" />
+                            </div>
+                        </div>
+
+
+
+
+                        <!-- Mensajes -->
+                        <asp:Panel ID="Panel1" runat="server" Visible="false" CssClass="mt-4">
+                            <div class="alert alert-dismissible fade show" role="alert">
+                                <asp:Label ID="Label1" runat="server"></asp:Label>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </asp:Panel>
+
+                        <div id="divGridTomador" runat="server" visible="false">
+                            <div class="alert alert-warning mb-3 mt-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-exclamation-triangle me-3 fa-lg"></i>
+                                    <div>
+                                        <h6 class="mb-1 fw-bold">Se encontraron múltiples clientes con el mismo documento</h6>
+                                        <p class="mb-0 small">
+                                            Por favor, seleccione el cliente correcto revisando los detalles adicionales.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <asp:GridView ID="gvClientesTomador"
+                                runat="server"
+                                AutoGenerateColumns="False"
+                                AllowPaging="true"
+                                PageSize="10"
+                                CssClass="table table-striped table-hover"
+                                OnRowCommand="gvClientesTomador_RowCommand">
+
+                                <EmptyDataTemplate>
+                                    <div class="text-center py-5 text-muted">
+                                        No se encontraron clientes
+                                    </div>
+                                </EmptyDataTemplate>
+
+                                <Columns>
+
+                                    <asp:TemplateField HeaderText="Nombre Completo">
+                                        <ItemTemplate>
+                                            <%# Eval("PerApellidoPaterno") + " " + 
+             Eval("PerApellidoMaterno") + " " + 
+             Eval("PerApellidoCasada") + " " + 
+             Eval("PerNombrePrimero") + " " + 
+             Eval("PerNombreSegundo") %>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+
+
+                                    <asp:BoundField DataField="PerTParCliDocumentoIdentidadTipoDescripcion"
+                                        HeaderText="Tipo Documento" />
+
+
+                                    <asp:BoundField DataField="PerDocumentoIdentidadNumero"
+                                        HeaderText="Número Documento"
+                                        ItemStyle-HorizontalAlign="Center" />
+
+
+                                    <asp:BoundField DataField="PerDocumentoIdentidadExtension"
+                                        HeaderText="Extensión"
+                                        ItemStyle-HorizontalAlign="Center" />
+
+
+                                    <asp:BoundField DataField="PerTParGenDepartamentoDescripcionDocumentoIdentidad"
+                                        HeaderText="Departamento" />
+
+
+                                    <asp:BoundField DataField="PerFechaAdicionFormato" HeaderText="Fecha de Registro" />
+
+
+                                    <asp:TemplateField HeaderText="Acción" ItemStyle-HorizontalAlign="Center" HeaderStyle-Width="120px">
+                                        <ItemTemplate>
+                                            <asp:Button ID="btnSeleccionar" runat="server"
+                                                Text="Seleccionar"
+                                                CssClass="btn btn-primary btn-sm"
+                                                CommandName="SeleccionarCliente"
+                                                CommandArgument='<%#Eval("PerSecuencial")%>' />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                </Columns>
+                            </asp:GridView>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </asp:View>
+        <!-- Paso 5: Datos del Tomador -->
+        <asp:View ID="vwPaso5" runat="server">
+            <asp:Panel ID="panel3" runat="server" DefaultButton="btnSiguiente4">
+                <section class="mb-4">
+                    <div class="card">
+                        <div class="card-header text-center py-3">
+                            <h5 class="mb-0 text-center">
+                                <strong>Datos Tomador</strong>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+
+                            <!-- User Control para tomador -->
+                            <uc:DatosPersonales ID="ucTomador" runat="server"
+                                TipoPersona="TOMADOR"
+                                ValidationGroup="Paso5" />
+
+                            <!-- Botones -->
+                            <div class="row mt-4">
+                                <div class="col-6">
+                                    <asp:Button ID="btnAnterior4" runat="server" Text="Atrás"
+                                        CssClass="btn btn-outline-primary w-100"
+                                        OnClick="btnAnterior4_Click" />
+                                </div>
+                                <div class="col-6">
+                                    <asp:Button ID="btnSiguiente4" runat="server" Text="Siguiente"
+                                        CssClass="btn btn-primary w-100"
+                                        OnClick="btnSiguiente4_Click"
+                                        ValidationGroup="Paso5" />
+                                </div>
+                            </div>
 
                         </div>
+                    </div>
+                </section>
+            </asp:Panel>
+
+        </asp:View>
+
+
+        <!-- Paso 6 - Beneficiarios -->
+        <asp:View ID="vwBeneficiarios" runat="server">
+            <section class="mb-4">
+                <div class="card">
+                    <div class="card-header text-center py-3">
+                        <h5 class="mb-0 text-center">
+                            <strong>Beneficiarios</strong>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+
+                        <!-- Información -->
+                        <div class="alert alert-info mb-3 text-center">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Para la cobertura por muerte, será(n) los herederos legales del asegurado</strong>
+                        </div>
+
+                        <!-- Nota -->
+                        <div class="alert alert-light border text-center mb-4">
+                            <i class="fas fa-sticky-note me-2"></i>
+                            <span class="fst-italic">Nota: No es obligatorio registrar beneficiario(s).</span>
+                        </div>
+
+                        <!-- Línea divisoria -->
+                        <hr class="my-4" />
+
+                        <!-- Botón Agregar Beneficiario -->
+                        <div class="text-center mb-4">
+                            <button type="button" class="btn btn-primary btn-lg" data-mdb-ripple-init data-mdb-modal-init data-mdb-target="#modalAgregarBeneficiario">
+                                <i class="fas fa-user-plus me-2"></i>AGREGAR BENEFICIARIO
+                            </button>
+                        </div>
+
+                        <!-- Lista de beneficiarios -->
+                        <div class="card border">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-users me-2"></i>Beneficiarios Agregados</h6>
+                            </div>
+                            <div class="card-body p-0">
+
+                                <!-- Mensaje cuando no hay beneficiarios -->
+                                <asp:Panel ID="pnlListaVacia" runat="server" CssClass="text-center py-5">
+                                    <div class="mb-3">
+                                        <i class="fas fa-user-friends fa-3x text-muted"></i>
+                                    </div>
+                                    <h5 class="text-muted">No se han agregado beneficiarios</h5>
+                                    <p class="text-muted small">Haga clic en "AGREGAR BENEFICIARIO" para registrar uno</p>
+                                </asp:Panel>
+
+                                <!-- GridView de beneficiarios -->
+                                <asp:GridView ID="gvBeneficiarios" runat="server"
+                                    AutoGenerateColumns="false"
+                                    CssClass="table table-hover mb-0"
+                                    ShowHeaderWhenEmpty="true"
+                                    DataKeyNames="Id"
+                                    OnRowDeleting="gvBeneficiarios_RowDeleting"
+                                    Visible="false">
+
+                                    <Columns>
+
+                                        <asp:TemplateField HeaderText="#" HeaderStyle-Width="50px" ItemStyle-HorizontalAlign="Center">
+                                            <ItemTemplate>
+                                                <%# Container.DataItemIndex + 1 %>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+
+                                        <asp:TemplateField HeaderText="Nombre Completo">
+                                            <ItemTemplate>
+                                                <%# Eval("PolBenNombreCompleto") %>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+
+                                        <asp:TemplateField HeaderText="Parentesco">
+                                            <ItemTemplate>
+                                                <%# Eval("PolBenTParEmiBeneficiarioParentescoFk") %>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+
+                                        <asp:TemplateField HeaderText="Porcentaje" ItemStyle-HorizontalAlign="Center">
+                                            <ItemTemplate>
+                                                <span class="badge bg-primary">
+                                                    <%# Eval("PolBenBeneficioPorcentaje") %>%
+                                                </span>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+
+                                        <asp:TemplateField HeaderText="Acciones" HeaderStyle-Width="120px" ItemStyle-HorizontalAlign="Center">
+                                            <ItemTemplate>
+
+                                                <asp:LinkButton runat="server"
+                                                    CommandName="Delete"
+                                                    CssClass="btn btn-sm btn-outline-danger"
+                                                    ToolTip="Eliminar"
+                                                    OnClientClick="return confirm('¿Está seguro de eliminar este beneficiario?');">
+                    <i class="fas fa-trash"></i>
+                                                </asp:LinkButton>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+
+                                    </Columns>
+
+                                    <EmptyDataTemplate>
+                                        <div class="text-center py-4 text-muted">
+                                            <i class="fas fa-user-friends fa-2x mb-2"></i>
+                                            <p>No hay beneficiarios registrados</p>
+                                        </div>
+                                    </EmptyDataTemplate>
+                                </asp:GridView>
+
+
+                                <!-- Resumen de porcentajes -->
+                                <asp:Panel ID="pnlResumenPorcentajes" runat="server" Visible="false" CssClass="card-footer">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Total asignado:</strong>
+                                            <span class="badge bg-success ms-2" id="spanTotalPorcentaje" runat="server">0%</span>
+                                        </div>
+                                        <div class="col-md-6 text-end">
+                                            <asp:Label ID="lblEstadoPorcentaje" runat="server" CssClass="small"></asp:Label>
+                                        </div>
+                                    </div>
+                                    <!-- Barra de progreso -->
+                                    <div class="progress mt-2" style="height: 10px;">
+                                        <div id="progressBarPorcentaje" runat="server"
+                                            class="progress-bar"
+                                            role="progressbar"
+                                            style="width: 0%;">
+                                        </div>
+                                    </div>
+                                </asp:Panel>
+
+                            </div>
+                        </div>
+
+                        <!-- Botones de navegación -->
                         <div class="row mt-4">
                             <div class="col-6">
-                                <asp:Button ID="btnAnterior1" runat="server" Text="Anterior" CssClass="btn btn-secondary w-100" OnClick="btnAnterior1_Click" CausesValidation="false" />
+                                <asp:Button ID="btnAnteriorBeneficiarios" runat="server"
+                                    Text="Atrás"
+                                    CssClass="btn btn-outline-primary w-100"
+                                    OnClick="btnAnteriorBeneficiarios_Click"
+                                    CausesValidation="false" />
                             </div>
                             <div class="col-6">
-                                <asp:Button ID="btnSiguiente2" runat="server" Text="Siguiente" CssClass="btn btn-primary w-100" OnClick="btnSiguiente2_Click" ValidationGroup="Paso2" />
+                                <asp:Button ID="btnSiguienteBeneficiarios" runat="server"
+                                    Text="Siguiente"
+                                    CssClass="btn btn-primary w-100"
+                                    OnClick="btnSiguienteBeneficiarios_Click" />
                             </div>
                         </div>
-
 
                     </div>
                 </div>
             </section>
 
 
-        </asp:View>
+            <!-- Modal para Agregar/Editar Beneficiario -->
+            <div class="modal fade" id="modalAgregarBeneficiario" tabindex="-1" aria-labelledby="modalAgregarBeneficiarioLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title" id="modalAgregarBeneficiarioLabel">
+                                <i class="fas fa-user-plus me-2"></i>
+                                <asp:Label ID="lblModalTitulo" runat="server" Text="Agregar Beneficiario"></asp:Label>
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
 
-        <!-- Paso 3 -->
-        <asp:View ID="vwPaso3" runat="server">
-            <asp:Panel ID="panelPaso3" runat="server" DefaultButton="btnObtenerQr">
+                        <asp:Panel ID="pnlModalBeneficiario" runat="server" DefaultButton="btnGuardarBeneficiario">
+                            <div class="modal-body">
+                                <asp:HiddenField ID="hfBeneficiarioId" runat="server" Value="0" />
+                                <asp:HiddenField ID="hfEsEdicion" runat="server" Value="false" />
+
+                                <div class="row">
+                                    <!-- Nombre Completo -->
+                                    <div class="col-md-12 mb-4">
+                                        <div data-mdb-input-init class="form-outline">
+                                            <asp:TextBox ID="txtNombreCompletoBeneficiario" runat="server"
+                                                CssClass="form-control form-control-lg"
+                                                placeholder=" "
+                                                MaxLength="100"
+                                                ClientIDMode="Static" />
+                                            <label class="form-label" for="<%= txtNombreCompletoBeneficiario.ClientID %>">
+                                                Nombre Completo <span class="text-danger">*</span>
+                                            </label>
+                                        </div>
+                                        <asp:RequiredFieldValidator ID="rfvNombreCompletoBeneficiario" runat="server"
+                                            ControlToValidate="txtNombreCompletoBeneficiario"
+                                            ErrorMessage="Ingrese el nombre completo"
+                                            CssClass="small text-danger"
+                                            Display="Dynamic"
+                                            ValidationGroup="ModalBeneficiario" />
+                                        <ajaxToolkit:FilteredTextBoxExtender
+                                            ID="ftbeNombreCompletoBeneficiario"
+                                            runat="server"
+                                            TargetControlID="txtNombreCompletoBeneficiario"
+                                            FilterType="Custom, UppercaseLetters, LowercaseLetters"
+                                            ValidChars=" -'"
+                                            FilterMode="ValidChars" />
+                                    </div>
+
+                                    <!-- Parentesco -->
+                                    <div class="col-md-6 mb-4">
+                                        <div style="position: relative;">
+                                            <asp:DropDownList ID="ddlParentesco" runat="server"
+                                                CssClass="form-control form-control-lg"
+                                                ClientIDMode="Static">
+                                                <asp:ListItem Value="0" Text="Seleccione"></asp:ListItem>
+                                                <asp:ListItem Value="1" Text="Cónyuge"></asp:ListItem>
+                                                <asp:ListItem Value="2" Text="Hijo(a)"></asp:ListItem>
+                                                <asp:ListItem Value="3" Text="Padre/Madre"></asp:ListItem>
+                                                <asp:ListItem Value="4" Text="Hermano(a)"></asp:ListItem>
+                                                <asp:ListItem Value="5" Text="Otro"></asp:ListItem>
+                                            </asp:DropDownList>
+                                            <label class="form-label" for="<%= ddlParentesco.ClientID %>"
+                                                style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
+                                                Parentesco <span class="text-danger">*</span>
+                                            </label>
+                                        </div>
+                                        <asp:RequiredFieldValidator ID="rfvParentesco" runat="server"
+                                            ControlToValidate="ddlParentesco"
+                                            InitialValue="0"
+                                            ErrorMessage="Seleccione el parentesco"
+                                            CssClass="small text-danger"
+                                            Display="Dynamic"
+                                            ValidationGroup="ModalBeneficiario" />
+                                    </div>
+
+                                    <!-- Porcentaje -->
+                                    <div class="col-md-6 mb-4">
+                                        <div data-mdb-input-init class="form-outline">
+                                            <asp:TextBox ID="txtPorcentaje" runat="server"
+                                                CssClass="form-control form-control-lg"
+                                                TextMode="Number"
+                                                min="1"
+                                                max="100"
+                                                placeholder=" "
+                                                ClientIDMode="Static" />
+                                            <label class="form-label" for="<%= txtPorcentaje.ClientID %>">
+                                                Porcentaje <span class="text-danger">*</span>
+                                            </label>
+                                            <span class="position-absolute" style="right: 28px; top: 11px; color: #6c757d;">%</span>
+                                        </div>
+                                        <asp:RequiredFieldValidator ID="rfvPorcentaje" runat="server"
+                                            ControlToValidate="txtPorcentaje"
+                                            ErrorMessage="Ingrese el porcentaje"
+                                            CssClass="small text-danger"
+                                            Display="Dynamic"
+                                            ValidationGroup="ModalBeneficiario" />
+                                        <asp:RangeValidator ID="rvPorcentaje" runat="server"
+                                            ControlToValidate="txtPorcentaje"
+                                            Type="Integer"
+                                            MinimumValue="1"
+                                            MaximumValue="100"
+                                            ErrorMessage="El porcentaje debe estar entre 1 y 100"
+                                            CssClass="small text-danger"
+                                            Display="Dynamic"
+                                            ValidationGroup="ModalBeneficiario" />
+                                        <ajaxToolkit:FilteredTextBoxExtender
+                                            ID="ftbePorcentaje"
+                                            runat="server"
+                                            TargetControlID="txtPorcentaje"
+                                            FilterType="Numbers" />
+                                    </div>
+
+                                </div>
+
+                                <!-- Resumen de validación -->
+                                <asp:ValidationSummary ID="vsModalBeneficiario" runat="server"
+                                    CssClass="alert alert-danger"
+                                    ValidationGroup="ModalBeneficiario"
+                                    ShowSummary="true"
+                                    ShowMessageBox="false" />
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-mdb-ripple-init data-mdb-dismiss="modal">Cancelar</button>
+
+                                <asp:Button ID="btnGuardarBeneficiario" runat="server"
+                                    Text="Guardar Beneficiario"
+                                    CssClass="btn btn-primary"
+                                    OnClick="btnGuardarBeneficiario_Click"
+                                    ValidationGroup="ModalBeneficiario" />
+                            </div>
+                        </asp:Panel>
+                    </div>
+                </div>
+            </div>
+
+        </asp:View>
+        <!-- Paso 7 - Facturación -->
+        <asp:View ID="vmFacturacion" runat="server">
+            <asp:Panel ID="panelPaso6" runat="server" DefaultButton="btnSiguienteFacturacion">
                 <section class="mb-4">
                     <div class="card">
                         <div class="card-header text-center py-3">
@@ -171,32 +809,13 @@
                             </h5>
                         </div>
                         <div class="card-body">
-                            <!-- Precio del SOAT -->
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between p-md-1">
-                                        <div class="d-flex flex-row">
-                                            <div class="align-self-center">
-                                                <span id="spanVehiculo" runat="server"></span>
-                                            </div>
-                                            <div>
-                                                <h4>SOAT <span id="spanGestion" runat="server"></span></h4>
-                                                <p class="mb-0"><span id="spanDepartamento" runat="server"></span>- Bolivia</p>
-                                            </div>
-                                        </div>
-                                        <div class="align-self-center">
-                                            <h2 class="h1 mb-0">Bs.<span id="spanPrima" runat="server"></span></h2>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
                             <asp:ValidationSummary ID="vsErrores" runat="server" CssClass="text-danger mb-3" />
 
                             <!-- Tipo de documento -->
                             <div class="mb-3 mt-5" style="position: relative;">
 
-                                <asp:DropDownList ID="ddlTipoDocumento" runat="server" CssClass="form-control form-control-lg" ClientIDMode="Static" OnSelectedIndexChanged="ddlTipoDocumento_SelectedIndexChanged" AutoPostBack="true">
+                                <asp:DropDownList ID="ddlTipoDocumento" runat="server" CssClass="form-control form-control-lg" ClientIDMode="Static">
                                 </asp:DropDownList>
                                 <label class="form-label" for="ddlTipoDocumento" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
                                     Tipo de documento
@@ -208,7 +827,7 @@
                                     ErrorMessage="El tipo de documento es requerido."
                                     CssClass="small text-danger"
                                     Display="Dynamic"
-                                    ValidationGroup="Paso3" />
+                                    ValidationGroup="panelPaso6" />
                             </div>
 
 
@@ -229,14 +848,14 @@
                                 ErrorMessage="Número de documento requerido."
                                 CssClass="small text-danger"
                                 Display="Dynamic"
-                                ValidationGroup="Paso3" />
+                                ValidationGroup="panelPaso6" />
                             <asp:RegularExpressionValidator ID="revNumeroDocumento" runat="server"
                                 ControlToValidate="txtNumeroDocumento"
                                 ValidationExpression="^\d+$"
                                 ErrorMessage="Solo se permiten números."
                                 CssClass="small text-danger"
                                 Display="Dynamic"
-                                ValidationGroup="Paso3" />
+                                ValidationGroup="panelPaso6" />
                             <!-- Complemento -->
                             <div data-mdb-input-init class="form-outline mt-4" runat="server" id="divComplemento" visible="false">
                                 <asp:TextBox ID="txtComplemento" MaxLength="5" runat="server" CssClass="form-control form-control-lg text-uppercase" ClientIDMode="Static" />
@@ -269,7 +888,7 @@
                                 ErrorMessage="Nombres o razón social requerido."
                                 CssClass="small text-danger"
                                 Display="Dynamic"
-                                ValidationGroup="Paso3" />
+                                ValidationGroup="panelPaso6" />
 
                             <!-- Correo electrónico -->
                             <div data-mdb-input-init class="form-outline mt-4">
@@ -282,7 +901,7 @@
                                 ErrorMessage="Correo electrónico requerido."
                                 CssClass="small text-danger"
                                 Display="Dynamic"
-                                ValidationGroup="Paso3" />
+                                ValidationGroup="panelPaso6" />
                             <ajaxToolkit:FilteredTextBoxExtender
                                 ID="FilteredTextBoxExtenderCorreo"
                                 runat="server"
@@ -298,7 +917,7 @@
                                 ErrorMessage="Formato de correo electrónico inválido."
                                 CssClass="small text-danger"
                                 Display="Dynamic"
-                                ValidationGroup="Paso3" />
+                                ValidationGroup="panelPaso6" />
 
                             <!-- Número de celular -->
                             <div data-mdb-input-init class="form-outline mt-4">
@@ -324,7 +943,7 @@
                                 ErrorMessage="El número de celular debe comenzar con un 6 o un 7 y tener 8 dígitos."
                                 CssClass="small text-danger"
                                 Display="Dynamic"
-                                ValidationGroup="Paso3" />
+                                ValidationGroup="panelPaso6" />
 
                             <asp:RequiredFieldValidator ID="RequiredFieldValidator7" runat="server"
                                 ControlToValidate="txtCelular"
@@ -332,17 +951,17 @@
                                 ErrorMessage="Número de celular requerido."
                                 CssClass="small text-danger"
                                 Display="Dynamic"
-                                ValidationGroup="Paso3" />
+                                ValidationGroup="panelPaso6" />
                             <ajaxToolkit:FilteredTextBoxExtender ID="ftbCelular" runat="server" TargetControlID="txtCelular" FilterType="Numbers" />
 
 
                             <!-- Botones -->
                             <div class="row mt-4">
                                 <div class="col-6">
-                                    <asp:Button ID="btnAnterior2" runat="server" Text="Anterior" CssClass="btn btn-secondary w-100" OnClick="btnAnterior2_Click" CausesValidation="false" />
+                                    <asp:Button ID="btnAnteriorFacturacion" runat="server" Text="Anterior" CssClass="btn btn-secondary w-100" CausesValidation="false" OnClick="btnAnteriorFacturacion_Click" />
                                 </div>
                                 <div class="col-6">
-                                    <asp:Button ID="btnObtenerQr" runat="server" Text="Generar QR" CssClass="btn btn-success w-100 btn-loading" OnClick="btnObtenerQr_Click" ValidationGroup="Paso3" />
+                                    <asp:Button ID="btnSiguienteFacturacion" runat="server" Text="Finalizar" CssClass="btn btn-success w-100 btn-loading" ValidationGroup="panelPaso6" OnClick="btnSiguienteFacturacion_Click" />
                                 </div>
                             </div>
                         </div>
@@ -357,82 +976,13 @@
             </asp:Panel>
 
         </asp:View>
-        <!-- Paso 4 -->
-        <asp:View ID="vwPaso4" runat="server">
+        <!-- Paso 8 - Mostrar PDF -->
+        <asp:View ID="vmReporte" runat="server">
             <section class="mb-4">
                 <div class="card">
                     <div class="card-header text-center py-3">
                         <h5 class="mb-0 text-center">
-                            <strong>QR Para el pago de SOAT</strong>
-                        </h5>
-                    </div>
-                    <div class="card-body">
-
-                        <div class="row align-items-center">
-                            <!-- Columna izquierda: Datos del vehículo -->
-                            <div class="col-12 col-md-6 mb-4 mb-md-0">
-                                <div class="d-flex flex-column align-items-center align-items-md-start text-center text-md-start fs-6">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <h1><span class="ms-2 text-dark fw-semibold text-uppercase" id="spanPlaca" runat="server"></span></h1>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-1">
-                                        <i class="fas fa-user-shield fa-sm text-primary me-2"></i>
-                                        <span class="fw-semibold">Tipo de Uso:</span>
-                                        <span class="ms-2 text-dark" id="spanTipoUsoVenta" runat="server"></span>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-1">
-                                        <i class="fas fa-motorcycle fa-sm text-success me-2"></i>
-                                        <span class="fw-semibold">Tipo de Vehículo:</span>
-                                        <span class="ms-2 text-dark" id="spanTipoVehiculoVenta" runat="server"></span>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-1">
-                                        <i class="fas fa-map-marker-alt fa-sm text-warning me-2"></i>
-                                        <span class="fw-semibold">Departamento:</span>
-                                        <span class="ms-2 text-dark" id="spanDepartamentoVenta" runat="server"></span>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-1">
-                                        <i class="fas fa-calendar-alt fa-sm text-info me-2"></i>
-                                        <span class="fw-semibold">Gestión:</span>
-                                        <span class="ms-2 text-dark" id="spanGestionVenta" runat="server"></span>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-money-bill-wave fa-sm text-danger me-2"></i>
-                                        <span class="fw-semibold">Prima:</span>
-                                        &nbsp;Bs.<span class="ms-2 text-dark" id="spanPrimaVenta" runat="server"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Columna derecha: QR -->
-                            <div class="col-12 col-md-6 text-center">
-                                <img src="" style="max-width: 320px" class="img-fluid mb-3" runat="server" id="imagenQr" />
-                            </div>
-                        </div>
-
-                        <hr />
-
-                        <!-- Botones -->
-                        <div class="row mt-4">
-                            <div class="col-6">
-                                <button type="button" class="btn btn-primary w-100" id="btnConsultarPago">Consultar Pago</button>
-                            </div>
-                            <div class="col-6">
-                                <asp:Button ID="btnAnularQr" runat="server" Text="Anular QR" CssClass="btn btn-danger w-100" OnClick="btnAnularQr_Click" />
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-        </asp:View>
-
-        <!-- Paso 5 -->
-        <asp:View ID="vwPaso5" runat="server">
-            <section class="mb-4">
-                <div class="card">
-                    <div class="card-header text-center py-3">
-                        <h5 class="mb-0 text-center">
-                            <strong>Comprobante Soat</strong>
+                            <strong>Certificado de cobertura</strong>
                         </h5>
                     </div>
                     <div class="card-body">
@@ -443,135 +993,123 @@
                             </div>
                         </div>
 
-                        <!-- Botones de navegación -->
-                        <div class="row mt-4">
 
-                            <div class="col-12">
-                                <asp:Button ID="btnInicio" runat="server" Text="Iniciar nueva venta" CssClass="btn btn-success w-100" OnClick="btnInicio_Click" />
-                            </div>
+
+                        <!-- Botón de búsqueda -->
+                        <div class="text-center mt-4">
+                            <asp:Button ID="btnCerrarFormularioVenta" runat="server"
+                                Text="Cerrar"
+                                CssClass="btn btn-primary btn-lg px-5"
+                                OnClick="btnCerrarFormularioVenta_Click" />
                         </div>
                     </div>
                 </div>
             </section>
         </asp:View>
     </asp:MultiView>
-    <!-- Modal QR Pagado -->
-
-    <div class="modal fade" id="modalQrPagado" tabindex="-1" aria-labelledby="modalQrPagadoLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-header text-white  py-3 px-4" style="background: linear-gradient(135deg, #0d6efd, #6610f2);">
-                    <h5 class="modal-title fw-bold" id="modalQrPagadoLabel">Pagar con QR</h5>
-                </div>
-
-                <!-- Cuerpo -->
-                <div class="modal-body text-center py-5 px-4">
-
-                    <!-- Mensaje -->
-                    <h5 id="mensajePago" class="text-primary fw-semibold mb-4">Escanee el código QR para completar el pago
-                    </h5>
-
-                    <!-- Spinner -->
-                    <div id="loadingContainer" class="d-flex flex-column align-items-center mb-4">
-                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-                            <span class="visually-hidden">Cargando...</span>
-                        </div>
-                        <div id="loadingText" class="text-muted small">Procesando datos, por favor espere...</div>
-                    </div>
-
-                    <!-- Respuesta -->
-                    <div id="respuestaMensaje" class="text-success fw-bold" style="min-height: 24px;"></div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-
 
     <script>
-        function limitLength(input) {
-            if (input.value.length > 10) {
-                input.value = input.value.slice(0, 10);
+        $(document).ready(function () {
+            // Habilitar/deshabilitar botón siguiente
+            function actualizarBotonSiguiente() {
+                var seleccionado = $('input[name="ctl00$MainContent$TomadorDiferente"]:checked').length > 0;
+                $('#btnSiguienteTomador').prop('disabled', !seleccionado);
             }
-        }
-        $("#btnConsultarPago").on("click", function (e) {
-            e.preventDefault();
 
-            var objeto = {
-                codigoUnico: $("#MainContent_hfCodigoUnico").val(),
-                ventaVendedor: $("#MainContent_hfVentaVendedor").val(),
-                sucursal: $("#MainContent_hfSucursal").val()
-            };
+            // Efecto de selección en las tarjetas
+            $('.card-option').click(function () {
+                // Remover selección de todas las tarjetas
+                $('.card-option .card').removeClass('selected border-primary').addClass('border-light');
 
-            const OnSuccessConsultarPago = (response) => {
-                var jsonResponse = JSON.parse(response.d);
-                if (jsonResponse !== "") {
-                    if (jsonResponse.Exito) {
-                        console.log(jsonResponse)
-                        if (jsonResponse.oSDatos.EstadoSecuencial == 3) {
+                // Seleccionar la tarjeta clickeada
+                $(this).find('.card').removeClass('border-light').addClass('selected border-primary');
 
-                            $("#mensajePago").html(jsonResponse.Mensaje);
-                            $('#modalQrPagado').modal('show');
-                            $("#MainContent_hfSecuencialPago").val(jsonResponse.oSDatos.Secuencial);
-                            consultarEfectivizacion();
+                // Marcar el radio button correspondiente
+                var radioId = $(this).find('input[type="radio"]').attr('id');
+                $('#' + radioId).prop('checked', true);
 
+                // Actualizar botón
+                actualizarBotonSiguiente();
 
-                        } else {
-                            showNotification("info", jsonResponse.Mensaje.toUpperCase())
-                        }
-                    } else {
-                        showNotification("info", jsonResponse.Mensaje.toUpperCase())
-                    }
-                } else {
-                    showNotification("error", "Ocurrió un problema con la verificación, intente nuevamente.")
-                }
-            };
-            ajaxRequest("Venta.aspx/JSConsultarPago", objeto, OnSuccessConsultarPago);
-        });
-        function consultarEfectivizacion() {
-            const intervalId = setInterval(() => {
-
-                const objetoVerificacion = {
-                    secuencial: $("#MainContent_hfSecuencialPago").val(),
-                    ventaVendedor: $("#MainContent_hfVentaVendedor").val(),
-                    sucursal: $("#MainContent_hfSucursal").val()
-                };
-                const OnSuccessEfectivizado = (response) => {
-                    var jsonResponse = JSON.parse(response.d);
-                    if (jsonResponse.Exito) {
-
-                        $("#respuestaMensaje").html(jsonResponse.oSDatos.Mensaje)
-                        if (jsonResponse.oSDatos.TParSimpleEestadoSolicitudEjecucionFk == 2) {
-                            clearInterval(intervalId);
-                            $("#MainContent_hfTVehiSoatPropFk").val(jsonResponse.oSDatos.TVehiSoatPropFk)
-                            $('#modalQrPagado').modal('hide');
-
-                            setInterval(function () {
-                                __doPostBack('AperturarPasoDocumento');
-                            }, 1000);
-
-                        }
-                    } else {
-                        swalError("Error", jsonResponse.Mensaje);
-                    }
-                }
-                ajaxRequest("Venta.aspx/JSConsultarEfectivizacion", objetoVerificacion, OnSuccessEfectivizado, false);
-            }, 5000);
-        }
-        function notificarExito(mensaje) {
-            swal({
-                title: 'Finalizado',
-                text: mensaje,
-                type: 'success',
-                confirmButtonText: 'Aceptar',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-            }).then(function () {
-                window.location.href = 'Venta.aspx';
+                // Animación
+                $(this).find('.card').addClass('animate__animated animate__pulse');
+                setTimeout(function () {
+                    $('.card').removeClass('animate__animated animate__pulse');
+                }, 500);
             });
-        }
 
+            // Efecto hover
+            $('.card-option').hover(
+                function () {
+                    if (!$(this).find('.card').hasClass('selected')) {
+                        $(this).find('.card').removeClass('border-light').addClass('border-secondary shadow-sm');
+                    }
+                },
+                function () {
+                    if (!$(this).find('.card').hasClass('selected')) {
+                        $(this).find('.card').removeClass('border-secondary shadow-sm').addClass('border-light');
+                    }
+                }
+            );
+
+            // Verificar si ya hay una selección previa
+            function verificarSeleccionPrevia() {
+                var seleccionado = $('input[name="ctl00$MainContent$TomadorDiferente"]:checked');
+                if (seleccionado.length > 0) {
+                    var cardOption = seleccionado.closest('.form-check');
+                    cardOption.find('.card').addClass('selected border-primary').removeClass('border-light');
+                    $('#btnSiguienteTomador').prop('disabled', false);
+                }
+            }
+
+            // Inicializar
+            verificarSeleccionPrevia();
+
+            // Validar al hacer clic en siguiente
+            $('#btnSiguienteTomador').click(function (e) {
+                if ($(this).prop('disabled')) {
+                    e.preventDefault();
+                    showNotification('warning', 'Por favor, seleccione una opción');
+                    // Animar las opciones para llamar la atención
+                    $('.card-option').addClass('animate__animated animate__shakeX');
+                    setTimeout(function () {
+                        $('.card-option').removeClass('animate__animated animate__shakeX');
+                    }, 1000);
+                }
+            });
+
+        });
+        $(document).ready(function () {
+            $('#modalAgregarBeneficiario').on('hidden.bs.modal', function () {
+                limpiarModalBeneficiario();
+            });
+
+            function limpiarModalBeneficiario() {
+
+                $('#<%= txtNombreCompletoBeneficiario.ClientID %>').val('');
+                $('#<%= ddlParentesco.ClientID %>').val('0');
+                $('#<%= txtPorcentaje.ClientID %>').val('');
+
+
+                $('#<%= hfBeneficiarioId.ClientID %>').val('0');
+                $('#<%= hfEsEdicion.ClientID %>').val('false');
+
+
+                $('#<%= lblModalTitulo.ClientID %>').text('Agregar Beneficiario');
+
+
+                $('.text-danger').hide();
+                $('.alert-danger').hide();
+
+
+                $('.form-control').removeClass('is-invalid');
+                $('.form-select').removeClass('is-invalid');
+            }
+
+            $('#modalAgregarBeneficiario').on('show.bs.modal', function () {
+                limpiarModalBeneficiario();
+            });
+        });
         document.addEventListener("DOMContentLoaded", function () {
             var input = document.getElementById("txtNumeroDocumento");
             input.addEventListener("input", function () {
@@ -581,30 +1119,89 @@
                 }
             });
         });
-        document.getElementById("txtItentificador").addEventListener("keydown", function (e) {
-            if (e.key === "Enter") {
-                e.preventDefault();
-                document.getElementById("btnSiguiente1").click();
-            }
-        });
 
-        function validateCelular(sender, args) {
-            var celular = args.Value;  // Obtener el valor ingresado en el campo txtCelular
-
-            // Validar que el número comience con un 6 o un 7
-            if (celular.startsWith("6") || celular.startsWith("7")) {
-                // Validar que el número tenga exactamente 8 dígitos
-                if (celular.length === 8) {
-                    args.IsValid = true;  // Si pasa la validación, es válido
-                } else {
-                    args.IsValid = false;  // Si no tiene 8 dígitos, es inválido
-                    args.ErrorMessage = "El número de celular debe tener exactamente 8 dígitos.";
-                }
-            } else {
-                args.IsValid = false;  // Si no comienza con 6 o 7, es inválido
-                args.ErrorMessage = "El número de celular debe comenzar con un 6 o un 7.";
-            }
-        }
     </script>
+    <style>
+        /* Estilos para las opciones de selección */
+        .card-option {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
+            .card-option .card {
+                border: 3px solid #f8f9fa;
+                border-radius: 15px;
+                transition: all 0.3s ease;
+            }
+
+                .card-option .card:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                }
+
+                .card-option .card.selected {
+                    border-color: #0d6efd !important;
+                    background-color: rgba(13, 110, 253, 0.05);
+                    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+                }
+
+        .option-icon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        #rbTomadorDiferenteSi:checked ~ label .option-icon {
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        #rbTomadorDiferenteNo:checked ~ label .option-icon {
+            background-color: rgba(25, 135, 84, 0.1);
+        }
+
+        .option-details {
+            min-height: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Animaciones */
+        .animate__shakeX {
+            animation-duration: 0.5s;
+        }
+
+        .animate__pulse {
+            animation-duration: 0.5s;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .card-option .card-body {
+                padding: 1.5rem !important;
+            }
+
+            .option-icon {
+                width: 60px;
+                height: 60px;
+            }
+
+                .option-icon i {
+                    font-size: 2rem !important;
+                }
+        }
+
+        /* Estado del botón */
+        #btnSiguienteTomador:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .form-outline.position-relative {
+            position: relative;
+        }
+    </style>
 </asp:Content>

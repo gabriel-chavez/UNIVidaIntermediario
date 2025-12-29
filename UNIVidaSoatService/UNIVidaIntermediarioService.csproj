@@ -59,6 +59,11 @@
     <Compile Include="Models\ServiceApiRequest.cs" />
     <Compile Include="Models\ServiceApiResponse.cs" />
     <Compile Include="Models\Soatc\CliPN01ObtenerDatosResponse.cs" />
+    <Compile Include="Models\Soatc\CliPN03ValidarCoberturaAseguradoResponse.cs" />
+    <Compile Include="Models\Soatc\Emi01PolizaEmitirPDFRequest.cs" />
+    <Compile Include="Models\Soatc\Emi01PolizaEmitirPDFResponse.cs" />
+    <Compile Include="Models\Soatc\Emi09PolizaListarResponse.cs" />
+    <Compile Include="Models\Soatc\Par01ObtenerParametricasResponse.cs" />
     <Compile Include="Models\Soat\Ven01ValidarVendibleRequest.cs" />
     <Compile Include="Models\Soat\Ven04ListarRequest.cs" />
     <Compile Include="Models\Soat\DatosValidarVendibleRequest.cs" />
