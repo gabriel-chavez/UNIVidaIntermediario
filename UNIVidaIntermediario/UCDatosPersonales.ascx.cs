@@ -4,338 +4,381 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using UNIVidaIntermediario.Utils;
+using UNIVidaSoatService.Models.Soatc;
 
 namespace UNIVidaIntermediario
 {
     public partial class UCDatosPersonales : System.Web.UI.UserControl
     {
-        // Eventos personalizados
-        public event EventHandler DatosGuardados;
-        public event EventHandler DatosCambiados;
-
-        // Propiedades públicas
-        public string TipoPersona
-        {
-            get { return hfTipoPersona.Value; }
-            set
-            {
-                hfTipoPersona.Value = value;
-                ConfigurarTitulos();
-            }
-        }
-
-        public bool ModoLectura
-        {
-            get { return Convert.ToBoolean(hfModoLectura.Value); }
-            set
-            {
-                hfModoLectura.Value = value.ToString();
-                SetModoLectura(value);
-            }
-        }
-
-        public bool ValidacionHabilitada
-        {
-            set { HabilitarValidacion(value); }
-        }
-
-        public string ValidationGroup
-        {
-            set { SetValidationGroup(value); }
-        }
+        public string ValidationGroup { get; set; }
 
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                ConfigurarTitulos();
+                CargarParametricas();
+                AplicarValidationGroup();
             }
         }
 
-        private void ConfigurarTitulos()
+        private void CargarParametricas()
         {
-            //switch (TipoPersona)
-            //{
-            //    case "ASEGURADO":
-            //        ltlTitulo.Text = "DATOS DEL ASEGURADO";
-            //        ltlSubtitulo.Text = "Complete los datos del asegurado";
-            //        badgeTipoPersona.InnerText = "Asegurado";
-            //        break;
-
-            //    case "TOMADOR":
-            //        ltlTitulo.Text = "DATOS DEL TOMADOR";
-            //        ltlSubtitulo.Text = "Complete los datos del tomador";
-            //        badgeTipoPersona.InnerText = "Tomador";
-            //        break;
-
-            //    case "BENEFICIARIO":
-            //        ltlTitulo.Text = "DATOS DEL BENEFICIARIO";
-            //        ltlSubtitulo.Text = "Complete los datos del beneficiario";
-            //        badgeTipoPersona.InnerText = "Beneficiario";
-            //        break;
-
-            //    default:
-            //        ltlTitulo.Text = "DATOS PERSONALES";
-            //        ltlSubtitulo.Text = "Complete los datos personales";
-            //        badgeTipoPersona.InnerText = TipoPersona;
-            //        break;
-            //}
+            ParObtenerTipoDocIdentidad();
+            ParObtenerDepartamento();
+            ParObtenerGenero();
+            ParObtenerEstadoCivil();
+            ParObtenerNacionalidad();
         }
-
-        private void SetModoLectura(bool modoLectura)
+        public OEdatosCliente ObtenerDatosFormulario()
         {
-            txtApellidoPaterno.Enabled = !modoLectura;
-            txtApellidoMaterno.Enabled = !modoLectura;
-            txtApellidoCasada.Enabled = !modoLectura;
-            txtPrimerNombre.Enabled = !modoLectura;
-            txtSegundoNombre.Enabled = !modoLectura;
-            txtFechaNacimiento.Enabled = !modoLectura;
-            ddlSexo.Enabled = !modoLectura;
-            ddlEstadoCivil.Enabled = !modoLectura;
-            ddlNacionalidad.Enabled = !modoLectura;
-            ddlDeptoResidencia.Enabled = !modoLectura;
-          //  ddlDeptoContratacion.Enabled = !modoLectura;
-            txtCelular.Enabled = !modoLectura;
-            txtEmail.Enabled = !modoLectura;
-            txtDireccion.Enabled = !modoLectura;
-
-            //if (modoLectura)
-            //{
-            //    datosPersonalesContainer.Attributes["class"] = "datos-personales-container modo-lectura";
-            //}
-            //else
-            //{
-            //    datosPersonalesContainer.Attributes["class"] = "datos-personales-container modo-edicion";
-            //}
-        }
-
-        private void HabilitarValidacion(bool habilitar)
-        {
-            rfvApellidoPaterno.Enabled = habilitar;
-            rfvApellidoMaterno.Enabled = habilitar;
-            rfvPrimerNombre.Enabled = habilitar;
-            rfvFechaNacimiento.Enabled = habilitar;
-            rfvSexo.Enabled = habilitar;
-            rfvEstadoCivil.Enabled = habilitar;
-            rfvNacionalidad.Enabled = habilitar;
-            rfvDeptoResidencia.Enabled = habilitar;
-          //  rfvDeptoContratacion.Enabled = habilitar;
-            rfvCelular.Enabled = habilitar;
-            rfvEmail.Enabled = habilitar;
-            rfvDireccion.Enabled = habilitar;
-          //  revCelular.Enabled = habilitar;
-            revEmail.Enabled = habilitar;
-            vsDatosPersonales.Enabled = habilitar;
-        }
-
-        private void SetValidationGroup(string validationGroup)
-        {
-            rfvApellidoPaterno.ValidationGroup = validationGroup;
-            rfvApellidoMaterno.ValidationGroup = validationGroup;
-            rfvPrimerNombre.ValidationGroup = validationGroup;
-            rfvFechaNacimiento.ValidationGroup = validationGroup;
-            rfvSexo.ValidationGroup = validationGroup;
-            rfvEstadoCivil.ValidationGroup = validationGroup;
-            rfvNacionalidad.ValidationGroup = validationGroup;
-            rfvDeptoResidencia.ValidationGroup = validationGroup;
-          //  rfvDeptoContratacion.ValidationGroup = validationGroup;
-            rfvCelular.ValidationGroup = validationGroup;
-            rfvEmail.ValidationGroup = validationGroup;
-            rfvDireccion.ValidationGroup = validationGroup;
-         //   revCelular.ValidationGroup = validationGroup;
-            revEmail.ValidationGroup = validationGroup;
-            vsDatosPersonales.ValidationGroup = validationGroup;
-        }
-
-        // Métodos para cargar datos
-        public void CargarDatosDocumento(string tipoDoc, string numeroDoc, string complemento, string deptoExpedicion)
-        {
-            //txtTipoDocumento.Text = ConvertirTipoDocumento(tipoDoc);
-            //txtNumeroDocumento.Text = numeroDoc;
-            //txtDeptoExpedicion.Text = ConvertirDepartamento(deptoExpedicion);
-
-            //if (!string.IsNullOrEmpty(complemento))
-            //{
-            //    divComplementoContainer.Visible = true;
-            //    txtComplemento.Text = complemento;
-            //}
-        }
-
-        public void CargarDatosPersonales(Dictionary<string, object> datos)
-        {
-            if (datos.ContainsKey("ApellidoPaterno"))
-                txtApellidoPaterno.Text = datos["ApellidoPaterno"].ToString();
-
-            if (datos.ContainsKey("ApellidoMaterno"))
-                txtApellidoMaterno.Text = datos["ApellidoMaterno"].ToString();
-
-            if (datos.ContainsKey("ApellidoCasada"))
-                txtApellidoCasada.Text = datos["ApellidoCasada"].ToString();
-
-            if (datos.ContainsKey("PrimerNombre"))
-                txtPrimerNombre.Text = datos["PrimerNombre"].ToString();
-
-            if (datos.ContainsKey("SegundoNombre"))
-                txtSegundoNombre.Text = datos["SegundoNombre"].ToString();
-
-            if (datos.ContainsKey("FechaNacimiento") && datos["FechaNacimiento"] != DBNull.Value)
+            try
             {
-                DateTime fecha = Convert.ToDateTime(datos["FechaNacimiento"]);
-                txtFechaNacimiento.Text = fecha.ToString("dd/MM/yyyy");
-            }
-
-            if (datos.ContainsKey("Sexo"))
-                ddlSexo.SelectedValue = datos["Sexo"].ToString();
-
-            if (datos.ContainsKey("EstadoCivil"))
-                ddlEstadoCivil.SelectedValue = datos["EstadoCivil"].ToString();
-
-            if (datos.ContainsKey("Nacionalidad"))
-                ddlNacionalidad.SelectedValue = datos["Nacionalidad"].ToString();
-
-            if (datos.ContainsKey("DeptoResidencia"))
-                ddlDeptoResidencia.SelectedValue = datos["DeptoResidencia"].ToString();
-
-            //if (datos.ContainsKey("DeptoContratacion"))
-            //    ddlDeptoContratacion.SelectedValue = datos["DeptoContratacion"].ToString();
-
-            if (datos.ContainsKey("Celular"))
-                txtCelular.Text = datos["Celular"].ToString();
-
-            if (datos.ContainsKey("Email"))
-                txtEmail.Text = datos["Email"].ToString();
-
-            if (datos.ContainsKey("Direccion"))
-                txtDireccion.Text = datos["Direccion"].ToString();
-        }
-
-        public Dictionary<string, object> ObtenerDatos()
-        {
-            return new Dictionary<string, object>
-            {
-                {"TipoPersona", TipoPersona},
-             //   {"TipoDocumento", txtTipoDocumento.Text},
-               // {"NumeroDocumento", txtNumeroDocumento.Text},
-                //{"Complemento", txtComplemento.Text},
-                //{"DeptoExpedicion", txtDeptoExpedicion.Text},
-                {"ApellidoPaterno", txtApellidoPaterno.Text},
-                {"ApellidoMaterno", txtApellidoMaterno.Text},
-                {"ApellidoCasada", txtApellidoCasada.Text},
-                {"PrimerNombre", txtPrimerNombre.Text},
-                {"SegundoNombre", txtSegundoNombre.Text},
-                {"FechaNacimiento", ParseFecha(txtFechaNacimiento.Text)},
-                {"Sexo", ddlSexo.SelectedValue},
-                {"EstadoCivil", ddlEstadoCivil.SelectedValue},
-                {"Nacionalidad", ddlNacionalidad.SelectedValue},
-                {"DeptoResidencia", ddlDeptoResidencia.SelectedValue},
-             //   {"DeptoContratacion", ddlDeptoContratacion.SelectedValue},
-                {"Celular", txtCelular.Text},
-                {"Email", txtEmail.Text},
-                {"Direccion", txtDireccion.Text}
-            };
-        }
-
-        public void Limpiar()
-        {
-            txtApellidoPaterno.Text = "";
-            txtApellidoMaterno.Text = "";
-            txtApellidoCasada.Text = "";
-            txtPrimerNombre.Text = "";
-            txtSegundoNombre.Text = "";
-            txtFechaNacimiento.Text = "";
-            ddlSexo.SelectedIndex = 0;
-            ddlEstadoCivil.SelectedIndex = 0;
-            ddlNacionalidad.SelectedIndex = 0;
-            ddlDeptoResidencia.SelectedIndex = 0;
-        //    ddlDeptoContratacion.SelectedIndex = 0;
-            txtCelular.Text = "";
-            txtEmail.Text = "";
-            txtDireccion.Text = "";
-        }
-
-        public bool Validar()
-        {
-            if (!Page.IsValid)
-                return false;
-
-            // Validación adicional de fecha
-            if (!string.IsNullOrEmpty(txtFechaNacimiento.Text))
-            {
-                DateTime fechaNac;
-                if (DateTime.TryParseExact(txtFechaNacimiento.Text, "dd/MM/yyyy",
-                    null, System.Globalization.DateTimeStyles.None, out fechaNac))
+                OEdatosCliente datos = new OEdatosCliente()
                 {
-                    int edad = DateTime.Now.Year - fechaNac.Year;
-                    if (DateTime.Now < fechaNac.AddYears(edad)) edad--;
+                    PerDocumentoIdentidadExtension = txtComplementoDocumento.Text,
+                    PerDocumentoIdentidadNumero = hfNumeroDocumento.Value,
+                    PerTParGenDepartamentoFkDocumentoIdentidad = int.Parse(ddlDeptoDocumento.SelectedValue),
+                    PerTParCliDocumentoIdentidadTipoFk = int.Parse(ddlTipoDocumento.SelectedValue),
 
-                    if (edad < 18)
-                    {
-                        MostrarMensaje("La persona debe ser mayor de 18 años", "warning");
-                        return false;
-                    }
+                    PerNacimientoFecha = ObtenerFechaFormateada(txtFechaNacimiento.Text),
+
+                    PerApellidoMaterno = string.IsNullOrWhiteSpace(txtApellidoMaterno.Text)
+                        ? null
+                        : txtApellidoMaterno.Text.Trim().ToUpper(),
+
+                    PerApellidoPaterno = string.IsNullOrWhiteSpace(txtApellidoPaterno.Text)
+                        ? null
+                        : txtApellidoPaterno.Text.Trim().ToUpper(),
+
+                    PerCorreoElectronico = string.IsNullOrWhiteSpace(txtEmail.Text)
+                        ? null
+                        : txtEmail.Text.Trim(),
+
+                    PerDomicilioParticular = string.IsNullOrWhiteSpace(txtDireccion.Text)
+                        ? null
+                        : txtDireccion.Text.Trim().ToUpper(),
+
+                    PerNombrePrimero = string.IsNullOrWhiteSpace(txtPrimerNombre.Text)
+                        ? null
+                        : txtPrimerNombre.Text.Trim().ToUpper(),
+
+                    PerNombreSegundo = string.IsNullOrWhiteSpace(txtSegundoNombre.Text)
+                        ? null
+                        : txtSegundoNombre.Text.Trim().ToUpper(),
+
+                    PerTelefonoMovil = string.IsNullOrWhiteSpace(txtCelular.Text)
+                        ? null
+                        : txtCelular.Text.Trim(),
+
+                    PerTParCliGeneroFk = int.Parse(ddlSexo.SelectedValue),
+                    PerTParGenActividadEconomicaFk = 0,
+                    PerTParGenDepartamentoFkNacimiento = 0,
+                    PerTParGenPaisFkNacionalidad = int.Parse(ddlNacionalidad.SelectedValue),
+
+                    PolMaeTParGenDepartamentoFk = int.Parse(ddlDeptoResidencia.SelectedValue),
+                    oConyuge = null,
+
+                };
+
+                return datos;
+            }
+            catch (Exception ex)
+            {
+                // Manejar error
+                throw new Exception($"Error al obtener datos del formulario: {ex.Message}");
+            }
+        }
+        private string ObtenerFechaFormateada(string fecha)
+        {
+            if (DateTime.TryParseExact(fecha, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None, out DateTime fechaDate))
+            {
+                return fechaDate.ToString("yyyy-MM-dd");
+            }
+            return string.Empty;
+        }
+
+        public void CargarDatos(CliPN01ObtenerDatosResponse dto)
+        {
+            if (dto == null) return;
+            if (dto.EsNuevo)
+            {
+                txtPrimerNombre.Text = string.Empty;
+                txtSegundoNombre.Text = string.Empty;
+                txtApellidoPaterno.Text = string.Empty;
+                txtApellidoMaterno.Text = string.Empty;
+                txtApellidoCasada.Text = string.Empty;
+                txtFechaNacimiento.Text = string.Empty;
+                ddlDeptoResidencia.SelectedIndex = 0;
+                ddlSexo.SelectedIndex = 0;
+                ddlEstadoCivil.SelectedIndex = 0;
+                ddlNacionalidad.SelectedIndex = 0;
+                txtCelular.Text = string.Empty;
+                txtEmail.Text = string.Empty;
+                txtDireccion.Text = string.Empty;
+
+                // Mostrar campos de documento
+                rowTipoDocumento.Visible = true;
+                rowComplementoDocumento.Visible = true;
+                rowDeptoDocumento.Visible = true;
+
+                // Si ya viene PerDocumentoIdentidadNumero, mostrarlo
+                ltlNumeroDocumento.Text = dto.PerDocumentoIdentidadNumero.ToString();
+
+                ltlTipoDocumento.Visible = false;
+                ltlComplementoDocumento.Visible = false;
+                ltlDepartamentoDocumento.Visible = false;
+
+                divDepartamento.Visible = false;
+                spanGuion.Visible = false;
+                divSeparador.Visible = false;
+                divDatosDocumentoIdentidad.Visible = true;
+
+            }
+            else
+            {
+                ltlTipoDocumento.Text = dto.PerTParCliDocumentoIdentidadTipoAbreviacion ?? "CI";
+
+                ltlNumeroDocumento.Text = dto.PerDocumentoIdentidadNumero.ToString();
+
+                if (!string.IsNullOrWhiteSpace(dto.PerDocumentoIdentidadExtension))
+                {
+                    spanComplemento.Visible = true;
+                    ltlComplementoDocumento.Text = dto.PerDocumentoIdentidadExtension;
+                }
+                else
+                {
+                    spanComplemento.Visible = false;
+                }
+
+                ltlDepartamentoDocumento.Text = dto.PerTParGenDepartamentoDescripcionDocumentoIdentidad;
+
+                txtApellidoPaterno.Text = dto.PerApellidoPaterno;
+                txtApellidoMaterno.Text = dto.PerApellidoMaterno;
+                txtApellidoCasada.Text = dto.PerApellidoCasada;
+
+                txtPrimerNombre.Text = dto.PerNombrePrimero;
+                txtSegundoNombre.Text = dto.PerNombreSegundo;
+
+                if (dto.PerNacimientoFecha != DateTime.MinValue)
+                    txtFechaNacimiento.Text = dto.PerNacimientoFecha.ToString("dd/MM/yyyy");
+
+                // Sexo (según tu combo)
+                ddlSexo.SelectedValue = dto.PerTParCliGeneroFk.ToString();
+                // Estado civil
+                ddlEstadoCivil.SelectedValue = dto.PerTParCliEstadoCivilFk.ToString();
+
+                // Nacionalidad
+                ddlNacionalidad.SelectedValue = dto.PerTParGenPaisFkNacionalidad.ToString();
+
+                txtCelular.Text = dto.PerTelefonoMovil;
+                txtEmail.Text = dto.PerCorreoElectronico;
+                txtDireccion.Text = dto.PerDomicilioParticular;
+
+                ltlTipoDocumento.Visible = true;
+                ltlComplementoDocumento.Visible = true;
+                ltlDepartamentoDocumento.Visible = true;
+                divDepartamento.Visible = true;
+                spanGuion.Visible = true;
+                divSeparador.Visible = true;
+                divDatosDocumentoIdentidad.Visible = false;
+
+                hfNumeroDocumento.Value = dto.PerDocumentoIdentidadNumero.ToString();
+                ddlTipoDocumento.SelectedValue = dto.PerTParCliDocumentoIdentidadTipoFk.ToString();
+                txtComplementoDocumento.Text = dto.PerDocumentoIdentidadExtension;
+                ddlDeptoDocumento.SelectedValue = dto.PerTParGenDepartamentoFkDocumentoIdentidad.ToString();
+
+            }
+
+
+        }
+
+
+        private void ParObtenerTipoDocIdentidad()
+        {
+            var response = WebFormHelpers.ConsumirMetodoApi<List<Par01ObtenerParametricasResponse>>(
+                "CoreTecnico",
+                "Parametrica",
+                "Par01ObtenerParametricas",
+                new
+                {
+                    ParIdentificadorParametricaFk = 1
+                }
+            );
+            if (response != null && response.Exito && response.oSDatos != null)
+            {
+                WebFormHelpers.CargarDropDownList(
+                    ddlTipoDocumento,
+                    response.oSDatos,
+                    item => item.Descripcion,
+                    item => item.Identificador.ToString()
+                );
+                ddlTipoDocumento.Items.Insert(0, new ListItem("Seleccione una opción", "0"));
+                //TiposDocumentos = response.oSDatos;
+            }
+            else
+            {
+                WebFormHelpers.EjecutarNotificacion(
+                    this.Page,
+                    "error",
+                    response?.Mensaje
+                );
+            }
+        }
+        private void ParObtenerDepartamento()
+        {
+            var response = WebFormHelpers.ConsumirMetodoApi<List<Par01ObtenerParametricasResponse>>(
+                "CoreTecnico",
+                "Parametrica",
+                "Par01ObtenerParametricas",
+                new
+                {
+                    ParIdentificadorParametricaFk = 9
+                }
+            );
+            if (response != null && response.Exito && response.oSDatos != null)
+            {
+                WebFormHelpers.CargarDropDownList(
+                    ddlDeptoDocumento,
+                    response.oSDatos,
+                    item => item.Descripcion,
+                    item => item.Identificador.ToString()
+                );
+                WebFormHelpers.CargarDropDownList(
+                    ddlDeptoResidencia,
+                    response.oSDatos,
+                    item => item.Descripcion,
+                    item => item.Identificador.ToString()
+                );
+                //ddlDeptoDocumento.Items.Insert(0, new ListItem("Seleccione una opción", "0"));                
+            }
+            else
+            {
+                WebFormHelpers.EjecutarNotificacion(
+                    this.Page,
+                    "error",
+                    response?.Mensaje
+                );
+            }
+        }
+        private void ParObtenerGenero()
+        {
+            var response = WebFormHelpers.ConsumirMetodoApi<List<Par01ObtenerParametricasResponse>>(
+                "CoreTecnico",
+                "Parametrica",
+                "Par01ObtenerParametricas",
+                new
+                {
+                    ParIdentificadorParametricaFk = 3
+                }
+            );
+            if (response != null && response.Exito && response.oSDatos != null)
+            {
+                WebFormHelpers.CargarDropDownList(
+                    ddlSexo,
+                    response.oSDatos,
+                    item => item.Descripcion,
+                    item => item.Identificador.ToString()
+                );
+                ddlSexo.Items.Insert(0, new ListItem("Seleccione una opción", "0"));
+            }
+            else
+            {
+                WebFormHelpers.EjecutarNotificacion(
+                    this.Page,
+                    "error",
+                    response?.Mensaje
+                );
+            }
+        }
+        private void ParObtenerEstadoCivil()
+        {
+            var response = WebFormHelpers.ConsumirMetodoApi<List<Par01ObtenerParametricasResponse>>(
+                "CoreTecnico",
+                "Parametrica",
+                "Par01ObtenerParametricas",
+                new
+                {
+                    ParIdentificadorParametricaFk = 2
+                }
+            );
+            if (response != null && response.Exito && response.oSDatos != null)
+            {
+                WebFormHelpers.CargarDropDownList(
+                    ddlEstadoCivil,
+                    response.oSDatos,
+                    item => item.Descripcion,
+                    item => item.Identificador.ToString()
+                );
+                //ddlDeptoDocumento.Items.Insert(0, new ListItem("Seleccione una opción", "0"));                
+            }
+            else
+            {
+                WebFormHelpers.EjecutarNotificacion(
+                    this.Page,
+                    "error",
+                    response?.Mensaje
+                );
+            }
+        }
+        private void ParObtenerNacionalidad()
+        {
+            var response = WebFormHelpers.ConsumirMetodoApi<List<Par01ObtenerParametricasResponse>>(
+                "CoreTecnico",
+                "Parametrica",
+                "Par01ObtenerParametricas",
+                new
+                {
+                    ParIdentificadorParametricaFk = 17
+                }
+            );
+            if (response != null && response.Exito && response.oSDatos != null)
+            {
+                WebFormHelpers.CargarDropDownList(
+                    ddlNacionalidad,
+                    response.oSDatos,
+                    item => item.Descripcion,
+                    item => item.Identificador.ToString()
+                );
+                //ddlDeptoDocumento.Items.Insert(0, new ListItem("Seleccione una opción", "0"));                
+            }
+            else
+            {
+                WebFormHelpers.EjecutarNotificacion(
+                    this.Page,
+                    "error",
+                    response?.Mensaje
+                );
+            }
+        }
+        private void AplicarValidationGroup()
+        {
+            if (string.IsNullOrEmpty(ValidationGroup))
+                return;
+
+            AsignarValidationGroupRecursivo(this);
+        }
+
+        private void AsignarValidationGroupRecursivo(Control parent)
+        {
+            foreach (Control ctrl in parent.Controls)
+            {
+                if (ctrl is BaseValidator validator)
+                {
+                    validator.ValidationGroup = ValidationGroup;
+                    validator.Enabled = true;
+                }
+
+                // 🔁 Recorrer hijos
+                if (ctrl.HasControls())
+                {
+                    AsignarValidationGroupRecursivo(ctrl);
                 }
             }
-
-            return true;
         }
 
-        public void MostrarMensaje(string mensaje, string tipo = "info")
-        {
-            //divMensajeInfo.Visible = true;
-            //ltlMensajeInfo.Text = mensaje;
-
-            //switch (tipo)
-            //{
-            //    case "success":
-            //        divMensajeInfo.CssClass = "alert alert-success mb-4";
-            //        break;
-            //    case "warning":
-            //        divMensajeInfo.CssClass = "alert alert-warning mb-4";
-            //        break;
-            //    case "danger":
-            //        divMensajeInfo.CssClass = "alert alert-danger mb-4";
-            //        break;
-            //    default:
-            //        divMensajeInfo.CssClass = "alert alert-info mb-4";
-            //        break;
-            //}
-        }
-
-        // Métodos auxiliares
-        private string ConvertirTipoDocumento(string tipoDoc)
-        {
-            switch (tipoDoc.ToUpper())
-            {
-                case "CI": return "Cédula de Identidad";
-                case "PASAPORTE": return "Pasaporte";
-                case "NIT": return "NIT";
-                case "CE": return "Cédula de Extranjería";
-                default: return tipoDoc;
-            }
-        }
-
-        private string ConvertirDepartamento(string codigo)
-        {
-            Dictionary<string, string> departamentos = new Dictionary<string, string>
-            {
-                {"LP", "La Paz"}, {"CB", "Cochabamba"}, {"SC", "Santa Cruz"},
-                {"OR", "Oruro"}, {"PT", "Potosí"}, {"TJ", "Tarija"},
-                {"CH", "Chuquisaca"}, {"BE", "Beni"}, {"PD", "Pando"}
-            };
-
-            return departamentos.ContainsKey(codigo) ? departamentos[codigo] : codigo;
-        }
-
-        private DateTime? ParseFecha(string fechaTexto)
-        {
-            DateTime fecha;
-            if (DateTime.TryParseExact(fechaTexto, "dd/MM/yyyy",
-                null, System.Globalization.DateTimeStyles.None, out fecha))
-            {
-                return fecha;
-            }
-            return null;
-        }
 
     }
 }

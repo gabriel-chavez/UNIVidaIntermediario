@@ -44,16 +44,16 @@
 
                 <!-- Tabla de resultados -->
                 <div class="table-responsive mt-4">
-                    <asp:GridView ID="gvSoatVendidos"
+                    <asp:GridView ID="gvSoatcVendidos"
                         runat="server"
                         DataKeyNames="SoatNroComprobante"
                         AutoGenerateColumns="False"
                         CssClass="table table-striped table-hover"
-                        OnRowCommand="gvSoatVendidos_RowCommand"
-                        OnRowDataBound="gvSoatVendidos_RowDataBound"
+                        OnRowCommand="gvSoatcVendidos_RowCommand"
+                        OnRowDataBound="gvSoatcVendidos_RowDataBound"
                         PagerStyle-CssClass="pagination-container"
                         PagerStyle-HorizontalAlign="Center"
-                        OnPageIndexChanging="gvSoatVendidos_PageIndexChanging"
+                        OnPageIndexChanging="gvSoatcVendidos_PageIndexChanging"
                         AllowPaging="true"
                         PageSize="30">
                         <EmptyDataTemplate>
@@ -74,18 +74,17 @@
                             </div>
                         </EmptyDataTemplate>
                         <Columns>
-                            <asp:BoundField DataField="FactNumero" HeaderText="Factura Nº" />
-                            <asp:BoundField DataField="FactFecha" HeaderText="Fecha" DataFormatString="{0:dd/MM/yyyy}" />
-                            <asp:BoundField DataField="VehiPlaca" HeaderText="Placa" />
-                            <asp:BoundField DataField="FactPrima" HeaderText="Prima" DataFormatString="{0:C}" />
-                            <asp:BoundField DataField="SoatNroComprobante" HeaderText="Comprobante" />
+                            <asp:BoundField DataField="FacturaMaestroNumeroFactura " HeaderText="Factura Nº" />
+                            <asp:BoundField DataField="FacturaMaestroFechaEmisionFormato " HeaderText="Fecha" DataFormatString="{0:dd/MM/yyyy}" />                            
+                            <asp:BoundField DataField="PolDetPrimaCobrada" HeaderText="Prima" DataFormatString="{0:C}" />
+                            <asp:BoundField DataField="PolMaeCodigoPoliza" HeaderText="Código" />
                             <asp:TemplateField HeaderText="Acciones">
                                 <ItemTemplate>
                                     <asp:LinkButton
                                         ID="btnVerComprobante"
                                         runat="server"
                                         CommandName="VerComprobante"
-                                        CommandArgument='<%# Eval("SoatNroComprobante") %>'
+                                        CommandArgument='<%# Eval("PolDetTPolizaMaestroFk") %>'
                                         CssClass="btn btn-sm btn-primary">
             <i class="fas fa-file-pdf"></i> Ver comprobante
                                     </asp:LinkButton>

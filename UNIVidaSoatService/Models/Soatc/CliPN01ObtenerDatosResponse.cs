@@ -2,9 +2,10 @@
 
 namespace UNIVidaSoatService.Models.Soatc
 {
-
+    [Serializable]
     public class CliPN01ObtenerDatosResponse
     {
+        public bool EsNuevo { get; set; }
         public string PerApellidoCasada { get; set; }
         public string PerApellidoMaterno { get; set; }
         public string PerApellidoPaterno { get; set; }
@@ -73,7 +74,7 @@ namespace UNIVidaSoatService.Models.Soatc
         public Odatosgenericos oDatosGenericos { get; set; }
         public Oformulariorespaldoprincipal oFormularioRespaldoPrincipal { get; set; }
     }
-
+    [Serializable]
     public class Odatosgenericos
     {
         public DateTime DatGenFecha { get; set; }
@@ -84,7 +85,7 @@ namespace UNIVidaSoatService.Models.Soatc
         public int DatGenTParGenDepartamentoFk { get; set; }
         public int DatGenTSucursalFk { get; set; }
     }
-
+    [Serializable]
     public class Oformulariorespaldoprincipal
     {
         public int FRPNumeroPrincipal { get; set; }

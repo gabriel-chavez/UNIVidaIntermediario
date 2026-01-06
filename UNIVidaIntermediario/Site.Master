@@ -177,112 +177,50 @@
             </div>
         </div>
 
-        <script type="text/javascript">
-            function mostrarLoading() {
-                document.getElementById('loadingOverlay').style.display = 'block';
-            }
+    </form>
+    <script type="text/javascript">
+        function mostrarLoading() {
+            document.getElementById('loadingOverlay').style.display = 'block';
+        }
 
-            function ocultarLoading() {
-                document.getElementById('loadingOverlay').style.display = 'none';
-            }
+        function ocultarLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
 
-            if (typeof (Sys) !== "undefined") {
-                Sys.WebForms.PageRequestManager.getInstance().add_beginRequest(function () {
-                    mostrarLoading();
-                });
-                Sys.WebForms.PageRequestManager.getInstance().add_endRequest(function () {
-                    ocultarLoading();
-                });
-            }
-            var originalDoPostBack = __doPostBack;
-            __doPostBack = function (eventTarget, eventArgument) {
+        if (typeof (Sys) !== "undefined") {
+            Sys.WebForms.PageRequestManager.getInstance().add_beginRequest(function () {
                 mostrarLoading();
-                originalDoPostBack(eventTarget, eventArgument);
-            };
-            //loading
-            document.addEventListener("click", function (event) {
-                var clickedElement = event.target;
-
-                if (clickedElement.classList.contains("loading") && clickedElement.tagName === 'A') {
-                    if (typeof Page_ClientValidate === 'function' && Page_ClientValidate()) {
-                        mostrarLoading();
-                    }
-                }
             });
-            window.onload = function () {
-                var enlacesMenu = document.querySelectorAll("#sidebarMenu a");
-                for (var i = 0; i < enlacesMenu.length; i++) {
-                    enlacesMenu[i].addEventListener('click', function (e) {
-                        // Detectar Ctrl, Shift, Meta (Cmd en Mac) o clic con botón medio
-                        if (e.ctrlKey || e.shiftKey || e.metaKey || e.which === 2) {
-                            return; // No mostrar loading si abrirá en nueva pestaña/ventana
-                        }
+            Sys.WebForms.PageRequestManager.getInstance().add_endRequest(function () {
+                ocultarLoading();
+            });
+        }
+        var originalDoPostBack = __doPostBack;
+        __doPostBack = function (eventTarget, eventArgument) {
+            mostrarLoading();
+            originalDoPostBack(eventTarget, eventArgument);
+        };
+        //loading
+        document.addEventListener("click", function (event) {
+            var clickedElement = event.target;
 
-                        // Solo mostrar loading si es un enlace válido dentro de la misma pestaña
-                        if (this.target !== "_blank" && this.href && this.href !== "#") {
-                            mostrarLoading();
-                        }
-                    });
-                }
-            };
-            $(".btn-loading").on("click", function (e) {
+            if (clickedElement.classList.contains("loading")) {
                 if (typeof Page_ClientValidate === 'function' && Page_ClientValidate()) {
                     mostrarLoading();
                 }
-            });
-            async function ajaxRequest(url, request, OnSuccess, loading = true) {
-                try {
-                    if (loading) {
-                        mostrarLoading(false);
-                    }
-
-                    let response = await fetch(url, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json; charset=utf-8"
-                        },
-                        body: JSON.stringify(request)
-                    });
-
-                    if (!response.ok) {
-                        // Manejo de errores HTTP
-                        if (response.status === 401) {
-                            swal({
-                                title: 'Atención!',
-                                text: "Su sesión finalizó, por favor inicie sesión para continuar",
-                                type: 'warning',
-                                allowOutsideClick: false
-                            }).then(() => location.reload());
-                        } else {
-                            swal({
-                                title: 'Atención!',
-                                text: `Error ${response.status}: ${response.statusText}`,
-                                type: 'warning',
-                                allowOutsideClick: false
-                            });
-                        }
-                        return;
-                    }
-
-                    let data = await response.json();
-                    OnSuccess(data);
-
-                } catch (error) {
-                    console.error(error);
-                    swal({
-                        title: 'Atención!',
-                        text: `Error en la solicitud: ${error.message}`,
-                        type: 'warning',
-                        allowOutsideClick: false
-                    });
-                } finally {
-                    ocultarLoading();
-                }
             }
-
-
-        </script>
-    </form>
+        });
+        window.onload = function () {
+            var enlacesMenu = document.querySelectorAll("#sidebarMenu a");
+            for (var i = 0; i < enlacesMenu.length; i++) {
+                enlacesMenu[i].addEventListener('click', function (e) {
+                    if (this.target !== "_blank" && this.href && this.href !== "#") {
+                        mostrarLoading();
+                    }
+                });
+            }
+        };
+</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
