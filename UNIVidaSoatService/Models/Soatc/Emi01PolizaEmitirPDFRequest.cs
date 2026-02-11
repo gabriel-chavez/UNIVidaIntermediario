@@ -15,6 +15,7 @@ namespace UNIVidaSoatService.Models.Soatc
         public OEdatosCliente oEDatosAsegurado { get; set; }
         public OEdatosCliente oEDatosTomador { get; set; }
         public Oetransaccionidentificador oETransaccionIdentificador { get; set; }
+        public EDatosFacturacion oEDatosFacturacion { get; set; }
     }
 
     public class OEdatosCliente
@@ -46,7 +47,7 @@ namespace UNIVidaSoatService.Models.Soatc
         public int PerConTParGenActividadEconomicaFk { get; set; }
     }
 
-    
+
     public class Oconyuge1
     {
         public string PerConDocumentoIdentidadNumero { get; set; }
@@ -68,5 +69,16 @@ namespace UNIVidaSoatService.Models.Soatc
         public int PolBenBeneficioPorcentaje { get; set; }
         public int PolBenTParEmiBeneficiarioParentescoFk { get; set; }
     }
+
+    public class EDatosFacturacion
+    {
+        public string FactNitCi { get; set; }
+        public object FactCiComplemento { get; set; }
+        public string FactRazonSocial { get; set; }
+        public string FactCorreoCliente { get; set; }
+        public string FactTelefonoCliente { get; set; }
+        public int FactTipoDocIdentidadFk { get; set; }
+    }
+
 
 }

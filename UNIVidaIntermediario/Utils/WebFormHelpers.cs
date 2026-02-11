@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using UNIVidaIntermediarioService.Models;
+using UNIVidaIntermediarioService.Models.Seguridad;
 using UNIVidaIntermediarioService.Services;
 
 namespace UNIVidaIntermediario.Utils
@@ -38,7 +39,7 @@ namespace UNIVidaIntermediario.Utils
         }
         public static ServiceApiResponse<T> ConsumirMetodoApi<T>(string sistema, string modulo, string metodo, object oEDatos )
         {
-            if (HttpContext.Current.Session["TokenSeguridad"]==null || HttpContext.Current.Session["TokenSeguridad"]==null)
+            if (HttpContext.Current.Session["TokenSeguridad"]==null)
             {
                 return null;
 
@@ -46,7 +47,7 @@ namespace UNIVidaIntermediario.Utils
             string nombreUsuario = HttpContext.Current.Session["NombreUsuario"]?.ToString();
             var tokenSeguridad = long.Parse(HttpContext.Current.Session["TokenSeguridad"]?.ToString());
 
-           
+            Otransusuariodatosexterno otransusuariodatosexterno = HttpContext.Current.Session["oTransUsuarioDatosExterno"] as Otransusuariodatosexterno;
 
             SoatApiClient soatApiClient = new SoatApiClient();
             var parametros = new ParametrosConfiguracion();
@@ -66,10 +67,10 @@ namespace UNIVidaIntermediario.Utils
                     },
                     oETransaccionOrigen = new TransaccionOrigenRequest
                     {
-                        TraOriCajero = nombreUsuario,
+                        TraOriCajero = nombreUsuario, 
                         TraOriCanal = parametros.TraOriCanal,
-                        TraOriEntidad = "UNIVida",
-                        TraOriIntermediario = 0,
+                        TraOriEntidad = otransusuariodatosexterno?.CodigoEntidad ?? "0000",
+                        TraOriIntermediario = otransusuariodatosexterno?.Intermediario ?? 0,
                         TraOriSucursal = "10100",
                         TraOriAgencia = ""
                     }

@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 
-namespace UNIVidaVentaRural
+namespace UNIVidaIntermediario
 {
     public partial class NotFound : System.Web.UI.Page
     {
@@ -18,7 +14,7 @@ namespace UNIVidaVentaRural
             {
                 // Mostrar URL solicitada
                 string url = Request.QueryString["aspxerrorpath"] ?? Request.RawUrl;
-                ltlRequestedUrl.Text = HttpUtility.HtmlEncode(url);
+                //ltlRequestedUrl.Text = HttpUtility.HtmlEncode(url);
             }
         }
     }

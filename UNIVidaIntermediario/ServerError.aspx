@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="ServerError.aspx.cs" Inherits="UNIVidaVentaRural.ServerError" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="ServerError.aspx.cs" Inherits="UNIVidaIntermediario.ServerError" %>
 
 <!DOCTYPE html>
 <html>

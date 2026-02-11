@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="NotFound.aspx.cs" Inherits="UNIVidaVentaRural.NotFound" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="NotFound.aspx.cs" Inherits="UNIVidaIntermediario.NotFound" %>
 
 <!DOCTYPE html>
 <html>

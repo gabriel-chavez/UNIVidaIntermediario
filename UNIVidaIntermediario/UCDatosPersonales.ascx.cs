@@ -36,7 +36,8 @@ namespace UNIVidaIntermediario
             {
                 OEdatosCliente datos = new OEdatosCliente()
                 {
-                    PerDocumentoIdentidadExtension = txtComplementoDocumento.Text,
+                    PerDocumentoIdentidadExtension = string.IsNullOrWhiteSpace(txtComplementoDocumento.Text) ? null
+                        : txtApellidoMaterno.Text.Trim().ToUpper(),
                     PerDocumentoIdentidadNumero = hfNumeroDocumento.Value,
                     PerTParGenDepartamentoFkDocumentoIdentidad = int.Parse(ddlDeptoDocumento.SelectedValue),
                     PerTParCliDocumentoIdentidadTipoFk = int.Parse(ddlTipoDocumento.SelectedValue),
@@ -118,12 +119,12 @@ namespace UNIVidaIntermediario
                 txtCelular.Text = string.Empty;
                 txtEmail.Text = string.Empty;
                 txtDireccion.Text = string.Empty;
-
+                hfNumeroDocumento.Value= dto.PerDocumentoIdentidadNumero.ToString();
                 // Mostrar campos de documento
                 rowTipoDocumento.Visible = true;
                 rowComplementoDocumento.Visible = true;
                 rowDeptoDocumento.Visible = true;
-
+                
                 // Si ya viene PerDocumentoIdentidadNumero, mostrarlo
                 ltlNumeroDocumento.Text = dto.PerDocumentoIdentidadNumero.ToString();
 

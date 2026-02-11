@@ -240,7 +240,7 @@ namespace UNIVidaIntermediario
 
                 WebFormHelpers.EjecutarNotificacion(
                     this,
-                    "error",
+                    "warning",
                     response?.Mensaje
                 );
                 if (response?.Mensaje == "La información del cliente no pudo ser obtenida.")
@@ -371,6 +371,15 @@ namespace UNIVidaIntermediario
         protected void btnSiguiente1_Click(object sender, EventArgs e)
         {
             var datosAseguradoResponse = ucAsegurado.ObtenerDatosFormulario();
+            var oEDatosFacturacion = new EDatosFacturacion()
+            {
+                FactNitCi = txtNumeroDocumento.Text,
+                FactCiComplemento = txtComplemento.Text,
+                FactRazonSocial = txtRazonSocial.Text,
+                FactCorreoCliente = "prueba@prueba.com",
+                FactTelefonoCliente = "00000000",
+                FactTipoDocIdentidadFk = int.Parse(ddlTipoDocumento.SelectedValue)
+            };
             Emi01PolizaEmitirPDFRequest datos = new Emi01PolizaEmitirPDFRequest
             {
                 PolMaeTParGenDepartamentoFk = datosAseguradoResponse.PolMaeTParGenDepartamentoFk,
@@ -382,7 +391,9 @@ namespace UNIVidaIntermediario
                 {
                     TraIdeLlaveA = DateTime.Now.ToString("yyyyMMddHHmmss"),
                     TraIdeLlaveB = _random.Next(100000, 999999).ToString()
-                }
+                },
+                oEDatosFacturacion= oEDatosFacturacion
+
             };
             var validarVendible = Emi11PolizaEfectivizarValidarVendible(datos);
             if (validarVendible.Exito)
@@ -391,7 +402,7 @@ namespace UNIVidaIntermediario
             {
                 WebFormHelpers.EjecutarNotificacion(
                     this,
-                    "error",
+                    "warning",
                     validarVendible.Mensaje
                 );
 
@@ -646,6 +657,15 @@ namespace UNIVidaIntermediario
         protected void btnSiguiente4_Click(object sender, EventArgs e)
         {
             var datosTomadorResponse = ucTomador.ObtenerDatosFormulario();
+            var oEDatosFacturacion = new EDatosFacturacion()
+            {
+                FactNitCi = txtNumeroDocumento.Text,
+                FactCiComplemento = txtComplemento.Text,
+                FactRazonSocial = txtRazonSocial.Text,
+                FactCorreoCliente = "prueba@prueba.com",
+                FactTelefonoCliente = "00000000",
+                FactTipoDocIdentidadFk = int.Parse(ddlTipoDocumento.SelectedValue)
+            };
             Emi01PolizaEmitirPDFRequest datos = new Emi01PolizaEmitirPDFRequest
             {
                 PolMaeTParGenDepartamentoFk = datosTomadorResponse.PolMaeTParGenDepartamentoFk,
@@ -657,7 +677,8 @@ namespace UNIVidaIntermediario
                 {
                     TraIdeLlaveA = DateTime.Now.ToString("yyyyMMddHHmmss"),
                     TraIdeLlaveB = _random.Next(100000, 999999).ToString()
-                }
+                },
+                oEDatosFacturacion= oEDatosFacturacion
             };
             var validarVendible = Emi11PolizaEfectivizarValidarVendible(datos);
             if (validarVendible.Exito)
@@ -690,6 +711,15 @@ namespace UNIVidaIntermediario
             {
                 datosTomadorResponse = ucTomador.ObtenerDatosFormulario();
             }
+            var oEDatosFacturacion = new EDatosFacturacion()
+            {
+                FactNitCi = txtNumeroDocumento.Text,
+                FactCiComplemento = txtComplemento.Text,
+                FactRazonSocial = txtRazonSocial.Text,
+                FactCorreoCliente = txtCorreo.Text,
+                FactTelefonoCliente = txtCelular.Text,
+                FactTipoDocIdentidadFk = int.Parse(ddlTipoDocumento.SelectedValue)
+            };
             Emi01PolizaEmitirPDFRequest datos = new Emi01PolizaEmitirPDFRequest
             {
                 PolMaeTParGenDepartamentoFk = datosAseguradoResponse.PolMaeTParGenDepartamentoFk,
@@ -701,7 +731,8 @@ namespace UNIVidaIntermediario
                 {
                     TraIdeLlaveA = DateTime.Now.ToString("yyyyMMddHHmmss"),
                     TraIdeLlaveB = _random.Next(100000, 999999).ToString()
-                }
+                },
+                oEDatosFacturacion = oEDatosFacturacion
             };
             var respuesta = Emi01PolizaEmitirPDF(datos);
             if (respuesta.Exito)
@@ -734,7 +765,7 @@ namespace UNIVidaIntermediario
             var response = WebFormHelpers.ConsumirMetodoApi<Object>(
                 "CoreTecnico",
                 "Emision",
-                "Emi01PolizaEmitirPDF",
+                "Emi11PolizaEfectivizarValidarVendible",
                 emi01PolizaEmitirPDFRequest
             );
             return response;
@@ -745,7 +776,7 @@ namespace UNIVidaIntermediario
             var response = WebFormHelpers.ConsumirMetodoApi<Emi01PolizaEmitirPDFResponse>(
                 "CoreTecnico",
                 "Emision",
-                "Emi11PolizaEfectivizarValidarVendible",
+                "Emi01PolizaEmitirPDF",
                 emi01PolizaEmitirPDFRequest
             );
             return response;

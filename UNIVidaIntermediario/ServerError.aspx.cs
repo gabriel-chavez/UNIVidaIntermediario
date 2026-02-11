@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web;
 
-namespace UNIVidaVentaRural
+namespace UNIVidaIntermediario
 {
     public partial class ServerError : System.Web.UI.Page
     {
@@ -21,9 +21,9 @@ namespace UNIVidaVentaRural
                 //    ? HttpUtility.HtmlEncode(errorMessage)
                 //    : "Ha ocurrido un error interno en el servidor. Nuestro equipo ha sido notificado.";
 
-                ltlErrorDetails.Text = !string.IsNullOrEmpty(errorDetails)
-                    ? HttpUtility.HtmlEncode(errorDetails)
-                    : "No hay detalles adicionales disponibles.";
+                //ltlErrorDetails.Text = !string.IsNullOrEmpty(errorDetails)
+                //    ? HttpUtility.HtmlEncode(errorDetails)
+                //    : "No hay detalles adicionales disponibles.";
 
                 
 

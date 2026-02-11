@@ -61,6 +61,8 @@ namespace UNIVidaIntermediario
                 Session["Autenticacion"] = false;
                 Session["NombreUsuario"] = usuario;
                 Session["TokenSeguridad"] = autenticacion.oSDatos.SegExtSeguridadToken;
+                Session["oTransUsuarioDatosExterno"] = autenticacion.oSDatos.oTransUsuarioDatosExterno;
+                
                 FormsAuthentication.RedirectFromLoginPage(usuario, false);
             }
             else
@@ -90,8 +92,8 @@ namespace UNIVidaIntermediario
                 "Seg01Autenticacion",
                 datos
             );
-            return new ServiceApiResponse<Seg01AutenticacionResponse> { Exito = true, CodigoRetorno = 0, Mensaje = "", oSDatos = new Seg01AutenticacionResponse() { SegExtSeguridadToken = 70873000 } };
-            //return response;            
+            //return new ServiceApiResponse<Seg01AutenticacionResponse> { Exito = true, CodigoRetorno = 0, Mensaje = "", oSDatos = new Seg01AutenticacionResponse() { SegExtSeguridadToken = 70873000 } };
+            return response;            
         }
         public class RecaptchaResponse
         {
