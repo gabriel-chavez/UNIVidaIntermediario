@@ -6,6 +6,7 @@ using System.Web.UI.WebControls;
 using UNIVidaIntermediarioService.Models.Soat;
 using UNIVidaIntermediario.Utils;
 using UNIVidaSoatService.Models.Soatc;
+using System.Collections.Generic;
 
 namespace UNIVidaIntermediario
 {
@@ -65,7 +66,7 @@ namespace UNIVidaIntermediario
              
             };
 
-            var response = WebFormHelpers.ConsumirMetodoApi<Emi09PolizaListarResponse>(
+            var response = WebFormHelpers.ConsumirMetodoApi<List<Emi09PolizaListarResponse>>(
                 "CoreTecnico",
                 "Emision",
                 "Emi09PolizaListar",
@@ -95,9 +96,9 @@ namespace UNIVidaIntermediario
 
             if (e.CommandName == "VerComprobante")
             {
-                int soatNroComprobante = Convert.ToInt32(e.CommandArgument);
-                Session["TVehiSoatPropFk"] = soatNroComprobante;
-                Response.Redirect("ComprobanteSoat");
+                //int soatNroComprobante = Convert.ToInt32(e.CommandArgument);
+                //Session["TVehiSoatPropFk"] = soatNroComprobante;
+                //Response.Redirect("ComprobanteSoat");
 
                 // Aquí llamas a tu método para obtener el archivo (por ejemplo, desde API)
                 //  var response = ObtenerComprobantePorNumero(soatNroComprobante);

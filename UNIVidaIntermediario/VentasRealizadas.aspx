@@ -46,7 +46,7 @@
                 <div class="table-responsive mt-4">
                     <asp:GridView ID="gvSoatcVendidos"
                         runat="server"
-                        DataKeyNames="SoatNroComprobante"
+                        DataKeyNames="PolDetSecuencialFk"
                         AutoGenerateColumns="False"
                         CssClass="table table-striped table-hover"
                         OnRowCommand="gvSoatcVendidos_RowCommand"
@@ -74,10 +74,12 @@
                             </div>
                         </EmptyDataTemplate>
                         <Columns>
-                            <asp:BoundField DataField="FacturaMaestroNumeroFactura " HeaderText="Factura Nº" />
-                            <asp:BoundField DataField="FacturaMaestroFechaEmisionFormato " HeaderText="Fecha" DataFormatString="{0:dd/MM/yyyy}" />                            
-                            <asp:BoundField DataField="PolDetPrimaCobrada" HeaderText="Prima" DataFormatString="{0:C}" />
                             <asp:BoundField DataField="PolMaeCodigoPoliza" HeaderText="Código" />
+                            <asp:BoundField DataField="PerDocumentoIdentidadNumero" HeaderText="Nro. Documento Identidad" />                                                                               
+                            <asp:BoundField DataField="FacturaMaestroNumeroFactura" HeaderText="Nro. Factura"/>
+                            <asp:BoundField DataField="FacturaMaestroFechaEmisionFormato" HeaderText="Fecha factura" />     
+                            <asp:BoundField DataField="PolDetPrimaCobrada" HeaderText="Prima" /> 
+                            <asp:BoundField DataField="PlaPagDetHistEstDescripcion" HeaderText="Estado" />
                             <asp:TemplateField HeaderText="Acciones">
                                 <ItemTemplate>
                                     <asp:LinkButton
