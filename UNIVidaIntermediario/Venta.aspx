@@ -1009,6 +1009,17 @@
     </asp:MultiView>
 
     <script>
+        // Validación cliente para el celular (CustomValidator ClientValidationFunction)
+        // Firma esperada: function(source, args) { args.IsValid = true/false; }
+        function validateCelular(source, args) {
+            try {
+                var val = args.Value || '';
+                var re = /^[67][0-9]{7}$/;
+                args.IsValid = re.test(val);
+            } catch (e) {
+                args.IsValid = false;
+            }
+        }
         $(document).ready(function () {
             // Habilitar/deshabilitar botón siguiente
             function actualizarBotonSiguiente() {
@@ -1110,15 +1121,12 @@
                 limpiarModalBeneficiario();
             });
         });
-        document.addEventListener("DOMContentLoaded", function () {
-            var input = document.getElementById("txtNumeroDocumento");
-            input.addEventListener("input", function () {
-                // corta si se pasa de 10 caracteres
-                if (this.value.length > 10) {
-                    this.value = this.value.slice(0, 10);
-                }
-            });
-        });
+        
+        $("#txtNumeroDocumento").on("input", function () {
+        if (this.value.length > 10) {
+            this.value = this.value.slice(0, 10);
+        }
+    });
 
     </script>
     <style>
