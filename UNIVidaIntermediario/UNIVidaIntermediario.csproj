@@ -108,7 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CambiarPassword.aspx" />
-    <Content Include="ComprobanteSoat.aspx" />
+    <Content Include="Certificado.aspx" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-grid.rtl.css" />
@@ -129,7 +129,7 @@
     <Content Include="Default.aspx" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
-    <Content Include="HistorialQrGenerado.aspx" />
+    <Content Include="ConciliacionListarVentas.aspx" />
     <Content Include="Login.aspx" />
     <Content Include="MasterMenu.ascx" />
     <Content Include="NotFound.aspx" />
@@ -617,12 +617,12 @@
     <Compile Include="CambiarPassword.aspx.designer.cs">
       <DependentUpon>CambiarPassword.aspx</DependentUpon>
     </Compile>
-    <Compile Include="ComprobanteSoat.aspx.cs">
-      <DependentUpon>ComprobanteSoat.aspx</DependentUpon>
+    <Compile Include="Certificado.aspx.cs">
+      <DependentUpon>Certificado.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="ComprobanteSoat.aspx.designer.cs">
-      <DependentUpon>ComprobanteSoat.aspx</DependentUpon>
+    <Compile Include="Certificado.aspx.designer.cs">
+      <DependentUpon>Certificado.aspx</DependentUpon>
     </Compile>
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
@@ -634,12 +634,12 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="HistorialQrGenerado.aspx.cs">
-      <DependentUpon>HistorialQrGenerado.aspx</DependentUpon>
+    <Compile Include="ConciliacionListarVentas.aspx.cs">
+      <DependentUpon>ConciliacionListarVentas.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="HistorialQrGenerado.aspx.designer.cs">
-      <DependentUpon>HistorialQrGenerado.aspx</DependentUpon>
+    <Compile Include="ConciliacionListarVentas.aspx.designer.cs">
+      <DependentUpon>ConciliacionListarVentas.aspx</DependentUpon>
     </Compile>
     <Compile Include="Login.aspx.cs">
       <DependentUpon>Login.aspx</DependentUpon>

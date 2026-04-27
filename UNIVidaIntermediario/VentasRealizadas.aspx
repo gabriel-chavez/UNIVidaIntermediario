@@ -86,7 +86,7 @@
                                         ID="btnVerComprobante"
                                         runat="server"
                                         CommandName="VerComprobante"
-                                        CommandArgument='<%# Eval("PolDetTPolizaMaestroFk") %>'
+                                        CommandArgument='<%# Eval("PolDetSecuencialFk") %>'
                                         CssClass="btn btn-sm btn-primary">
             <i class="fas fa-file-pdf"></i> Ver comprobante
                                     </asp:LinkButton>

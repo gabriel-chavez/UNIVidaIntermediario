@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
+using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 
 namespace UNIVidaIntermediario
@@ -19,34 +20,23 @@ namespace UNIVidaIntermediario
 
         private void MarcarMenuActivo()
         {
-            string paginaActual = System.IO.Path.GetFileName(Request.Url.AbsolutePath).ToLower();
+            string ruta = Request.Url.AbsolutePath.ToLower().Trim('/');            
+            string pagina = System.IO.Path.GetFileNameWithoutExtension(ruta);
 
-            // Remueve la clase "active" de todos (por si acaso)
-            //linkInicio.Attributes["class"] = linkInicio.Attributes["class"].Replace(" active", "");
-            linkVenta.Attributes["class"] = linkVenta.Attributes["class"].Replace(" active", "");
-            linkMisVentas.Attributes["class"] = linkMisVentas.Attributes["class"].Replace(" active", "");
-            linkHistorialQr.Attributes["class"] = linkHistorialQr.Attributes["class"].Replace(" active", "");
-
-            switch (paginaActual)
+            var mapaMenu = new Dictionary<string, HtmlControl>
             {
-                case "default.aspx":
-                case "":
-                case "/":
-                 //   linkInicio.Attributes["class"] += " active";
-                    break;
-                case "venta.aspx":
-                    linkVenta.Attributes["class"] += " active";
-                    break;
-                case "ventasrealizadas.aspx":
-                    linkMisVentas.Attributes["class"] += " active";
-                    break;
-                case "historialqrgenerado.aspx":
-                    linkHistorialQr.Attributes["class"] += " active";
-                    break;
-                default:
-                 
-                    break;
-            }
+                { "venta",                       linkVenta },
+                { "ventasrealizadas",            linkMisVentas },
+                { "conciliacionlistarventas",    linkConciliacionListarVentas }
+            };
+
+            // Quitar "active" de todos
+            foreach (var link in mapaMenu.Values)
+                link.Attributes["class"] = (link.Attributes["class"] ?? "").Replace(" active", "").Trim();
+
+            // Agregar "active" al que corresponde
+            if (mapaMenu.TryGetValue(pagina, out var linkActivo))
+                linkActivo.Attributes["class"] += " active";
         }
 
     }

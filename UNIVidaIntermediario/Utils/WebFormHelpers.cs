@@ -41,6 +41,7 @@ namespace UNIVidaIntermediario.Utils
         {
             if (HttpContext.Current.Session["TokenSeguridad"]==null)
             {
+                HttpContext.Current.Response.Redirect("~/Login.aspx", true);
                 return null;
 
             }

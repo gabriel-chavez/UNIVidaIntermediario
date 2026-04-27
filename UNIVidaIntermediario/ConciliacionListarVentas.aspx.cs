@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Web;
 using System.Web.Security;
-using System.Web.UI;
 using System.Web.UI.WebControls;
+using UNIVidaIntermediario.Utils;
 using UNIVidaIntermediarioService.Models.PasarelaPagos;
 using UNIVidaIntermediarioService.Models.Soat;
-using UNIVidaIntermediario.Utils;
 
 namespace UNIVidaIntermediario
 {
-    public partial class HistorialQrGenerado : System.Web.UI.Page
+    public partial class ConciliacionListarVentas : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -29,16 +27,11 @@ namespace UNIVidaIntermediario
             }
             if (!IsPostBack)
             {
-                txtFechaVenta.Text = DateTime.Today.ToString("yyyy-MM-dd");
-
-                this.CargarGrilla();
+                txtFechaVenta.Text = DateTime.Today.ToString("yyyy-MM-dd");            
             }
         }
 
-        protected void btnVerQrGenerado_Click(object sender, EventArgs e)
-        {
-            this.CargarGrilla();
-        }
+    
         protected void CargarGrilla()
         {
             DateTime fechaVenta = DateTime.ParseExact(
@@ -51,7 +44,7 @@ namespace UNIVidaIntermediario
                 Fecha = fechaVenta,
                 VentaVendedor = Session["NombreUsuario"].ToString(),
                 TParVentaCanalFk = new ParametrosConfiguracion().TraOriCanal,
-                TParSimpleEstadoSolicitudFk = int.Parse(ddlEstado.SelectedValue),
+              //  TParSimpleEstadoSolicitudFk = int.Parse(ddlEstado.SelectedValue),
                 IdentificadorVehiculo = ""
             };
 
@@ -221,6 +214,11 @@ namespace UNIVidaIntermediario
         {
             gvHistorialQr.PageIndex = e.NewPageIndex;
             CargarGrilla();
+        }
+
+        protected void btnListarVentas_Click(object sender, EventArgs e)
+        {
+            this.CargarGrilla();
         }
     }
 }

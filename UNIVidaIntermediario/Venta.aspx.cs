@@ -776,7 +776,7 @@ namespace UNIVidaIntermediario
             var response = WebFormHelpers.ConsumirMetodoApi<Emi01PolizaEmitirPDFResponse>(
                 "CoreTecnico",
                 "Emision",
-                "Emi01PolizaEmitirPDF",
+                "Emi12PolizaEfectivizarPDF",
                 emi01PolizaEmitirPDFRequest
             );
             return response;

@@ -62,6 +62,7 @@
     <Compile Include="Models\Soatc\CliPN03ValidarCoberturaAseguradoResponse.cs" />
     <Compile Include="Models\Soatc\Emi01PolizaEmitirPDFRequest.cs" />
     <Compile Include="Models\Soatc\Emi01PolizaEmitirPDFResponse.cs" />
+    <Compile Include="Models\Soatc\Emi03PolizaObtenerPDFResponse.cs" />
     <Compile Include="Models\Soatc\Emi09PolizaListarResponse.cs" />
     <Compile Include="Models\Soatc\Par01ObtenerParametricasResponse.cs" />
     <Compile Include="Models\Soat\Ven01ValidarVendibleRequest.cs" />

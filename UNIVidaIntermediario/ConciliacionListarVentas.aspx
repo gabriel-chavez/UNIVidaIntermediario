@@ -1,30 +1,23 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="HistorialQrGenerado.aspx.cs" Inherits="UNIVidaIntermediario.HistorialQrGenerado" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="ConciliacionListarVentas.aspx.cs" Inherits="UNIVidaIntermediario.ConciliacionListarVentas" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <section class="mb-4">
         <div class="card">
             <div class="card-header text-center py-3">
                 <h5 class="mb-0 text-center">
-                    <strong>Historial de QR</strong>
+                    <strong>Nuevo Reporte de cierre de Ventas</strong>
                 </h5>
             </div>
             <div class="card-body">
 
 
-                <!-- Estado -->
+                <!-- vendedor -->
                 <div class="mb-4" style="position: relative;">
-                    <asp:DropDownList ID="ddlEstado" runat="server" CssClass="form-control form-control-lg" ClientIDMode="Static">
-                        <asp:ListItem Text="TODOS" Value="-1" Selected="True" />
-                        <asp:ListItem Text="SOLICITADO" Value="1" />
-                        <asp:ListItem Text="HABILITADO" Value="2" />
-                        <asp:ListItem Text="PAGADO" Value="3" />
-                        <asp:ListItem Text="ANULADO" Value="4" />
-                        <asp:ListItem Text="VENCIDO" Value="5" />
-                        <asp:ListItem Text="RECHAZADO" Value="6" />
-                        <asp:ListItem Text="ERROR DE IMAGEN" Value="7" />
+                    <asp:DropDownList ID="ddlVendedor" runat="server" CssClass="form-control form-control-lg" ClientIDMode="Static">
+                        
                     </asp:DropDownList>
                     <label class="form-label" for="ddlEstado" style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; font-size: 0.80rem; color: #6c757d;">
-                        Estado
+                        Vendedor
                     </label>
                 </div>
 
@@ -44,8 +37,8 @@
                     Display="Dynamic" />
 
                 <div class="text-center mt-4">
-                    <asp:LinkButton ID="btnVerQrGenerado" runat="server" CssClass="btn btn-primary d-flex align-items-center justify-content-center gap-2"
-                        OnClick="btnVerQrGenerado_Click"
+                    <asp:LinkButton ID="btnListarVentas" runat="server" CssClass="btn btn-primary d-flex align-items-center justify-content-center gap-2"
+                        OnClick="btnListarVentas_Click"
                         ValidationGroup="buscar"
                         CausesValidation="true">
     <lord-icon src="https://cdn.lordicon.com/hoetzosy.json" trigger="loop"

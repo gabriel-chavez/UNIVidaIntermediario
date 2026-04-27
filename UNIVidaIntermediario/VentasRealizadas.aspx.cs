@@ -96,12 +96,10 @@ namespace UNIVidaIntermediario
 
             if (e.CommandName == "VerComprobante")
             {
-                //int soatNroComprobante = Convert.ToInt32(e.CommandArgument);
-                //Session["TVehiSoatPropFk"] = soatNroComprobante;
-                //Response.Redirect("ComprobanteSoat");
-
-                // Aquí llamas a tu método para obtener el archivo (por ejemplo, desde API)
-                //  var response = ObtenerComprobantePorNumero(soatNroComprobante);
+                int soatNroComprobante = Convert.ToInt32(e.CommandArgument);
+                Session["TPolizaDetalleFk"] = soatNroComprobante;
+                Response.Redirect("Certificado");
+                                
 
 
             }

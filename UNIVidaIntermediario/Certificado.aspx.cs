@@ -8,10 +8,11 @@ using System.Web.UI.WebControls;
 using UNIVidaIntermediarioService.Models.Soat;
 using UNIVidaIntermediarioService.Models;
 using UNIVidaIntermediario.Utils;
+using UNIVidaSoatService.Models.Soatc;
 
 namespace UNIVidaIntermediario
 {
-    public partial class ComprobanteSoat : System.Web.UI.Page
+    public partial class Certificado : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -28,7 +29,7 @@ namespace UNIVidaIntermediario
             }
             if (!IsPostBack)
             {
-                if (Session["TVehiSoatPropFk"] == null)
+                if (Session["TPolizaDetalleFk"] == null)
                 {
                     Response.Redirect("VentasRealizadas", true);
                 }
@@ -39,7 +40,7 @@ namespace UNIVidaIntermediario
 
         private void MostrarComprobanteSoat()
         {
-            var response = Ven05ObtenerPDF();
+            var response = Emi03PolizaObtenerPDF();
             if (response.Exito)
             {
               
@@ -49,30 +50,26 @@ namespace UNIVidaIntermediario
                 string base64 = Convert.ToBase64String(archivoAdjunto.ArchivoAdjunto);
                 pdfViewer.Attributes["src"] = "data:application/pdf;base64," + base64;
             }
+            pdfViewer.Visible= response.Exito;
+            divMensaje.Visible = !response.Exito;
+            lblMensaje.Text = response.Mensaje;
+
+
         }
-        private ServiceApiResponse<Ven05ObtenerPDFResponse> Ven05ObtenerPDF()
+        private ServiceApiResponse<Emi03PolizaObtenerPDFResponse> Emi03PolizaObtenerPDF()
         {
-            int soatNroComprobante = int.Parse(Session["TVehiSoatPropFk"].ToString());
-            Session["TVehiSoatPropFk"] = null;
-            var datos = new Ven05ObtenerPDFRequest
+            int tPolizaDetalleFk = int.Parse(Session["TPolizaDetalleFk"].ToString());
+            Session["TPolizaDetalleFk"] = null;
+            var datos = new 
             {
-                PdfConDiseño = false,
-                SoatNroComprobante = soatNroComprobante,
-                lSoatDocumentosSolicitados = new Lsoatdocumentossolicitado[]
-    {
-        new Lsoatdocumentossolicitado { DocumentoTipo = 1, DocumentoRequerido = false },
-        new Lsoatdocumentossolicitado { DocumentoTipo = 2, DocumentoRequerido = false },
-        new Lsoatdocumentossolicitado { DocumentoTipo = 3, DocumentoRequerido = true },
-        new Lsoatdocumentossolicitado { DocumentoTipo = 4, DocumentoRequerido = false },
-        new Lsoatdocumentossolicitado { DocumentoTipo = 5, DocumentoRequerido = false },
-        new Lsoatdocumentossolicitado { DocumentoTipo = 6, DocumentoRequerido = false }
-    }
+                TPolizaDetalleFk = tPolizaDetalleFk,
+     
             };
 
-            var response = WebFormHelpers.ConsumirMetodoApi<Ven05ObtenerPDFResponse>(
-                "CoreSOAT",
-                "Ventas",
-                "Ven05ObtenerPDF",
+            var response = WebFormHelpers.ConsumirMetodoApi<Emi03PolizaObtenerPDFResponse>(
+                "CoreTecnico",
+                "Emision",
+                "Emi03PolizaObtenerPDF",
                 datos
             );
             return response;

@@ -13,7 +13,7 @@
             <a id="linkMisVentas" runat="server" href="VentasRealizadas.aspx" class="list-group-item list-group-item-action py-2" data-mdb-ripple-init>
                 <i class="fas fa-shopping-cart fa-fw me-3"></i><span>Mis Ventas</span>
             </a>
-            <a id="linkHistorialQr" runat="server" href="HistorialQrGenerado.aspx" class="list-group-item list-group-item-action py-2" data-mdb-ripple-init>
+            <a id="linkConciliacionListarVentas" runat="server" href="ConciliacionListarVentas.aspx" class="list-group-item list-group-item-action py-2" data-mdb-ripple-init>
                 <i class="fas fa-square-poll-vertical fa-fw me-3 text-info"></i><span>Nuevo Rcv</span>
             </a>
             <a id="A1" runat="server" href="HistorialQrGenerado.aspx" class="list-group-item list-group-item-action py-2" data-mdb-ripple-init>

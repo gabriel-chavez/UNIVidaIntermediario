@@ -11,61 +11,52 @@ namespace UNIVidaIntermediario
 {
 
 
-    public partial class MasterMenu
+    public partial class ConciliacionListarVentas
     {
 
         /// <summary>
-        /// Control linkVenta.
+        /// Control ddlVendedor.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlAnchor linkVenta;
+        protected global::System.Web.UI.WebControls.DropDownList ddlVendedor;
 
         /// <summary>
-        /// Control linkMisVentas.
+        /// Control txtFechaVenta.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlAnchor linkMisVentas;
+        protected global::System.Web.UI.WebControls.TextBox txtFechaVenta;
 
         /// <summary>
-        /// Control linkConciliacionListarVentas.
+        /// Control RequiredFieldValidator4.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlAnchor linkConciliacionListarVentas;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator RequiredFieldValidator4;
 
         /// <summary>
-        /// Control A1.
+        /// Control btnListarVentas.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlAnchor A1;
+        protected global::System.Web.UI.WebControls.LinkButton btnListarVentas;
 
         /// <summary>
-        /// Control A2.
+        /// Control gvHistorialQr.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlAnchor A2;
-
-        /// <summary>
-        /// Control A3.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlAnchor A3;
+        protected global::System.Web.UI.WebControls.GridView gvHistorialQr;
     }
 }

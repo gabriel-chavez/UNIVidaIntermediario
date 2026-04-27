@@ -11,52 +11,43 @@ namespace UNIVidaIntermediario
 {
 
 
-    public partial class HistorialQrGenerado
+    public partial class Certificado
     {
 
         /// <summary>
-        /// Control ddlEstado.
+        /// Control pdfViewer.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlEstado;
+        protected global::System.Web.UI.HtmlControls.HtmlIframe pdfViewer;
 
         /// <summary>
-        /// Control txtFechaVenta.
+        /// Control divMensaje.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtFechaVenta;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl divMensaje;
 
         /// <summary>
-        /// Control RequiredFieldValidator4.
+        /// Control lblMensaje.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator RequiredFieldValidator4;
+        protected global::System.Web.UI.WebControls.Label lblMensaje;
 
         /// <summary>
-        /// Control btnVerQrGenerado.
+        /// Control btnInicio.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton btnVerQrGenerado;
-
-        /// <summary>
-        /// Control gvHistorialQr.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvHistorialQr;
+        protected global::System.Web.UI.WebControls.Button btnInicio;
     }
 }
